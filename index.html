@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MOSTY — Kniha jako artefakt</title>
+    
+    <!-- Prémiová typografie -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;700;900&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- HIGH-END EDITORIAL DESIGN SYSTEM --- */
+        :root {
+            --bg-color: #f5f4f0;
+            --text-main: #111111;
+            --text-muted: #555555;
+            --border-color: #d1d1cf;
+            --accent-gold: #c5a059;
+            --font-display: 'Montserrat', sans-serif;
+            --font-serif: 'Playfair Display', serif;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        body { background-color: var(--bg-color); color: var(--text-main); font-family: var(--font-display); line-height: 1.6; -webkit-font-smoothing: antialiased; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 0 40px; }
+
+        /* Hlavička */
+        header { border-bottom: 1px solid var(--border-color); padding: 30px 0; }
+        header .container { display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 1.8rem; font-weight: 900; letter-spacing: 0.4em; text-transform: uppercase; text-decoration: none; color: var(--text-main); }
+        nav { display: flex; gap: 40px; align-items: center; }
+        nav a { text-decoration: none; color: var(--text-main); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.15em; font-weight: 500; transition: color 0.3s; }
+        nav a:hover { color: var(--accent-gold); }
+        .btn-outline { border: 1px solid var(--text-main); padding: 12px 24px; transition: all 0.3s; }
+        .btn-outline:hover { background-color: var(--text-main); color: var(--bg-color); }
+
+        /* Hero Sekce */
+        .hero { padding: 120px 0 40px 0; }
+        .hero-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
+        .hero-content h1 { font-family: var(--font-serif); font-size: 4rem; line-height: 1.1; margin-bottom: 30px; }
+        .hero-content p { font-size: 1.2rem; color: var(--text-muted); margin-bottom: 40px; max-width: 500px; font-family: var(--font-serif); font-style: italic; }
+        
+        /* YouTube Video Kontejner */
+        .video-wrapper {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            background-color: #000;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        .video-wrapper iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Velká vizuální plocha */
+        .image-showcase {
+            width: 100%;
+            aspect-ratio: 21 / 9;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            background-color: #e2e1dc;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+        .image-showcase img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* Aktuality (Rozklikávací akordeon) */
+        .news-section { padding: 100px 0; border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); }
+        .section-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 60px; padding-bottom: 20px; border-bottom: 1px solid var(--text-main); }
+        .section-header h2 { font-size: 2.5rem; font-family: var(--font-serif); font-weight: 400; }
+        
+        .news-accordion { display: flex; flex-direction: column; }
+        .news-row { border-bottom: 1px solid var(--border-color); padding: 30px 0; cursor: pointer; transition: background-color 0.2s; }
+        .news-row:hover { background-color: rgba(0,0,0,0.01); }
+        .news-trigger { display: grid; grid-template-columns: 200px 1fr 50px; align-items: center; gap: 20px; }
+        .news-date { font-size: 0.75rem; letter-spacing: 0.1em; color: var(--accent-gold); font-weight: 700; text-transform: uppercase; }
+        .news-title { font-family: var(--font-serif); font-size: 2.2rem; line-height: 1.2; font-weight: 400; }
+        .news-icon { font-size: 2rem; font-weight: 300; text-align: right; color: var(--text-muted); transition: transform 0.3s; }
+        .news-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out, margin-top 0.3s; padding-left: 200px; max-width: 900px; color: var(--text-muted); font-size: 1.05rem; line-height: 1.8; }
+        
+        /* Třídy pro rozbalený stav */
+        .news-row.active .news-icon { transform: rotate(45deg); color: var(--text-main); }
+        .news-row.active .news-content { max-height: 500px; margin-top: 25px; }
+
+        /* Přímá podpora */
+        .support-section { padding: 120px 0; background-color: #111; color: var(--bg-color); }
+        .support-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; }
+        .support-info h2 { font-family: var(--font-serif); font-size: 3rem; margin-bottom: 20px; }
+        .support-info p { color: #aaa; margin-bottom: 30px; font-size: 1.1rem; }
+        .form-container { background-color: #1a1a1a; padding: 50px; border: 1px solid #333; position: relative; overflow: hidden; }
+        .form-container iframe { display: none; }
+        .form-group { margin-bottom: 25px; }
+        .form-group label { display: block; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 10px; color: #888; }
+        .form-group input { width: 100%; background: transparent; border: none; border-bottom: 1px solid #444; color: white; padding: 10px 0; font-size: 1rem; font-family: var(--font-display); }
+        .form-group input:focus { outline: none; border-bottom-color: var(--accent-gold); }
+        .btn-submit { background-color: var(--bg-color); color: var(--text-main); border: none; width: 100%; padding: 18px; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.15em; font-weight: 700; cursor: pointer; transition: background-color 0.3s; margin-top: 20px; }
+        .btn-submit:hover { background-color: var(--accent-gold); color: white; }
+        .qr-zone { display: none; text-align: center; animation: fadeIn 0.5s ease forwards; }
+        .qr-placeholder { width: 200px; height: 200px; background: white; margin: 0 auto 30px auto; display: flex; align-items: center; justify-content: center; color: black; font-weight: bold; }
+        .payment-details { font-family: monospace; font-size: 1.1rem; color: var(--accent-gold); margin-bottom: 20px; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Responzivita */
+        @media (max-width: 900px) {
+            .hero-grid, .support-grid { grid-template-columns: 1fr; gap: 40px; }
+            .hero-content h1 { font-size: 3rem; }
+            .news-trigger { grid-template-columns: 1fr 40px; gap: 10px; }
+            .news-date { display: block; margin-bottom: 5px; }
+            .news-title { font-size: 1.5rem; }
+            .news-content { padding-left: 0; }
+            nav { display: none; }
+            .image-showcase { aspect-ratio: 16/9; }
+        }
+    </style>
+
+    <!-- Skript pro automatické vyhledávání správných formátů a názvů obrázků -->
+    <script>
+        function tryImages(img, filenames, fallback) {
+            if (!img.dataset.tryIndex) img.dataset.tryIndex = "0";
+            let idx = parseInt(img.dataset.tryIndex);
+            if (idx < filenames.length) {
+                img.dataset.tryIndex = (idx + 1).toString();
+                img.src = filenames[idx];
+            } else {
+                img.src = fallback;
+                img.onerror = null; // Zamezení nekonečné smyčce
+            }
+        }
+    </script>
+</head>
+<body>
+
+    <header>
+        <div class="container">
+            <a href="index.html" class="logo">Mosty</a>
+            <nav>
+                <a href="oprojektu.html">O Projektu</a>
+                <a href="#aktuality">Deník</a>
+                <a href="mosty.html" style="color: var(--accent-gold);">Kniha & Ukázky</a>
+                <a href="autori.html">Autoři</a>
+                <a href="faq.html">Kontakt & FAQ</a>
+                <a href="#podpora" class="btn-outline">Podpořit nezávisle</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <!-- HERO SEKCE -->
+        <section class="hero">
+            <div class="container hero-grid" style="margin-bottom: 80px;">
+                <div class="hero-content">
+                    <h1>Ztělesnění inženýrské odvahy.</h1>
+                    <p>Příběh 50 českých železničních mostů v knize, která má ambici být samostatným uměleckým artefaktem. Navzdory zradě míříme do tisku.</p>
+                    <a href="#podpora" class="btn-outline" style="display: inline-block; background: var(--text-main); color: var(--bg-color);">Předobjednat napřímo</a>
+                </div>
+                
+                <!-- YOUTUBE VIDEO -->
+                <div class="video-wrapper">
+                    <iframe src="https://www.youtube.com/embed/ZDE_VLOZ_ID_VIDEA?rel=0" title="MOSTY Promo Video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                </div>
+            </div>
+            
+            <!-- VELKÁ VIZUÁLNÍ PLOCHA (AUTOMATICKY VYHLEDÁ LOKÁLNÍ SOUBORY) -->
+            <div class="container">
+                <div class="image-showcase">
+                    <img src="mosty vis.jpg" 
+                         onerror="tryImages(this, ['mosty vis.png', 'mosty-vis.png', 'mosty-vis.jpg', 'titulka na stole.jpg', 'titulka na stole.png', 'titulka-na-stole.png', 'titulka-na-stole.jpg', 'Nepojmenované mosty 3D.png', 'nepojmenovane-mosty-3d.png', 'knha1.jpg', 'knha1.png'], 'https://lh3.googleusercontent.com/d/10T2cgXlUs_yuQJk5SlTIgA-t4RGPUpws')" 
+                         alt="Vizualizace knihy MOSTY">
+                </div>
+            </div>
+        </section>
+
+        <!-- AKTUALITY (Deník projektu - Rozklikávací, snadno editovatelný) -->
+        <section id="aktuality" class="news-section">
+            <div class="container">
+                <div class="section-header">
+                    <h2>Deník projektu</h2>
+                    <span style="color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em;">Kliknutím rozbalíte</span>
+                </div>
+                
+                <!-- Akordeon vykreslovaný pomocí JavaScriptu -->
+                <div class="news-accordion" id="newsAccordion"></div>
+            </div>
+        </section>
+
+        <!-- PŘÍMÁ PODPORA -->
+        <section id="podpora" class="support-section">
+            <div class="container support-grid">
+                <div class="support-info">
+                    <h2>Podpořte nás napřímo</h2>
+                    <p>Nenecháváme si diktovat podmínky od velkých platforem. Pokud nás podpoříte napřímo, 100 % částky půjde do výroby knihy a nezávislého tisku.</p>
+                    <p style="font-family: var(--font-serif); font-size: 1.5rem; margin-top: 40px;">Základní předobjednávka: 1 500 Kč</p>
+                    <div style="margin-top: 60px; padding-top: 40px; border-top: 1px solid #333;">
+                        <h3 style="font-size: 1rem; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 10px;">Jste firma nebo mecenáš?</h3>
+                        <p style="font-size: 0.9rem; margin-bottom: 20px;">Nabízíme adopci konkrétních mostů (18 000 Kč) či pozici Generálního partnera. Lze řešit přes darovací smlouvy.</p>
+                        <a href="faq.html" style="color: var(--accent-gold); text-decoration: none; border-bottom: 1px solid var(--accent-gold);">Prohlédnout B2B nabídku →</a>
+                    </div>
+                </div>
+
+                <div class="form-container">
+                    <script>var submitted = false;</script>
+                    <iframe name="hidden_iframe" id="hidden_iframe" onload="if(submitted) { showQRZone(); }"></iframe>
+
+                    <form id="preorderForm" action="https://docs.google.com/forms/d/e/1FAIpQLSf1WnBpvkAA325HTHsRwKuunWDz8s9ZRfc6o0OLg8PxeB-png/formResponse" method="POST" target="hidden_iframe" onsubmit="submitted=true;">
+                        <h3 style="margin-bottom: 30px; font-family: var(--font-serif); font-size: 1.8rem; font-weight: 400; color: white;">Kam knihu zašleme?</h3>
+                        <div class="form-group"><label>Jméno a Příjmení (bude v poděkování v knize)</label><input type="text" id="name" name="entry.1790206576" required placeholder="Jan Novák"></div>
+                        <div class="form-group"><label>E-mail</label><input type="email" id="email" name="entry.2033392367" required placeholder="jan@email.cz"></div>
+                        <div class="form-group"><label>Doručovací adresa</label><input type="text" id="address" name="entry.1334770553" required placeholder="Ulice, Město, PSČ"></div>
+                        <label style="font-size: 0.7rem; color: #888; display: flex; align-items: center; gap: 10px; cursor: pointer; margin-top: 20px;">
+                            <input type="checkbox" required style="accent-color: var(--accent-gold);"> Souhlasím se zpracováním osobních údajů pro vyřízení objednávky (GDPR).
+                        </label>
+                        <button type="submit" class="btn-submit">Získat platební QR kód</button>
+                    </form>
+
+                    <div id="qrZone" class="qr-zone">
+                        <h3 style="margin-bottom: 20px; font-family: var(--font-serif); font-size: 1.8rem; font-weight: 400; color: white;">Děkujeme, <span id="displayName"></span>!</h3>
+                        <p style="color: #aaa; margin-bottom: 30px; font-size: 0.9rem;">Vaše údaje se nám právě uložily. Pro dokončení předobjednávky prosím naskenujte QR kód ve svém bankovnictví.</p>
+                        <div class="qr-placeholder">[ Zde bude tvůj QR kód ]</div>
+                        <div class="payment-details">Částka: 1 500 Kč<br>Účet: ZDE_DOPLN_TVUJ_UCET/0123<br>Zpráva: Kniha MOSTY - <span id="displayEmail" style="font-size: 0.8rem;"></span></div>
+                        <p style="font-size: 0.8rem; color: #888; margin-top: 30px;">Po přijetí platby vám zašleme potvrzení na e-mail.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- NEWSLETTER SEKCE -->
+    <section class="newsletter-section" style="padding: 80px 0; border-top: 1px solid var(--border-color); background-color: white;">
+        <div class="container" style="display: flex; justify-content: space-between; align-items: center; gap: 40px; flex-wrap: wrap;">
+            <div style="max-width: 500px;">
+                <h2 style="font-family: var(--font-serif); font-size: 2rem; margin-bottom: 10px;">Zůstaňte v obraze</h2>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">Zanechte nám e-mail a my se vám ozveme, jakmile kniha zamíří do tisku nebo spustíme kampaň.</p>
+            </div>
+            <form action="https://docs.google.com/forms/d/e/1FAIpQLSeEf6yzc3dPp5tYE8K6102OXJPFLbYhWq0QrtikHStq1DWBgQ/formResponse" method="POST" target="_blank" style="flex-grow: 1; max-width: 500px; display: flex; flex-direction: column; gap: 15px;">
+                <div style="display: flex; border-bottom: 1px solid var(--text-main);">
+                    <input type="email" name="entry.1692910955" placeholder="Váš e-mail" required style="width: 100%; border: none; padding: 15px 0; font-family: var(--font-display); font-size: 1rem; outline: none; background: transparent; color: var(--text-main);">
+                    <button type="submit" style="background: none; border: none; font-family: var(--font-display); font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer; padding: 0 15px; color: var(--text-main);">Odebírat</button>
+                </div>
+                <label style="font-size: 0.7rem; color: var(--text-muted); display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                    <input type="checkbox" required style="accent-color: var(--text-main);"> Souhlasím se zpracováním osobních údajů pro zasílání novinek (GDPR).
+                </label>
+            </form>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div>&copy; 2026 Projekt MOSTY</div>
+            <div style="color: var(--text-muted);">Design / Kniha jako artefakt</div>
+        </div>
+    </footer>
+
+    <!-- JAVASCRIPT PRO INTERAKTIVITU -->
+    <script>
+        // DATA PRO AKTUALITY (Kdykoliv sem můžeš přidat další blok a sám se vykreslí a napojí)
+        const newsData = [
+            {
+                date: "ČERVEN 2026",
+                title: "Příprava sazby a jízdní řády",
+                content: "Jan Matoušek právě dokončil první náhledy dvoustran. Grafický design reflektuje neúprosný rytmus železničních jízdních řádů."
+            },
+            {
+                date: "DUBEN 2026",
+                title: "Chýnovský viadukt k náhledu",
+                content: "Rozhodli jsme se do knihy přidat ještě jednu stavbu s neuvěřitelným příběhem o odvaze a technologickém pokroku. Celou kapitolu o Chýnovském viaduktu pro vás již brzy zpřístupníme k náhledu přímo zde na webu."
+            }
+        ];
+
+        // Vykreslení Akordeonu
+        const accordionContainer = document.getElementById('newsAccordion');
+        newsData.forEach((item, index) => {
+            const row = document.createElement('div');
+            row.className = 'news-row';
+            row.innerHTML = `
+                <div class="news-trigger" onclick="toggleNews(${index})">
+                    <span class="news-date">${item.date}</span>
+                    <h3 class="news-title">${item.title}</h3>
+                    <div class="news-icon">+</div>
+                </div>
+                <div class="news-content" id="news-content-${index}">
+                    <p>${item.content}</p>
+                </div>
+            `;
+            accordionContainer.appendChild(row);
+        });
+
+        // Přepínání rozbalení zpráv
+        function toggleNews(index) {
+            const rows = document.querySelectorAll('.news-row');
+            rows.forEach((row, idx) => {
+                if (idx === index) {
+                    row.classList.toggle('active');
+                } else {
+                    row.classList.remove('active');
+                }
+            });
+        }
+
+        // Ukázání QR platební zóny po odeslání objednávky
+        function showQRZone() {
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            document.getElementById('displayName').innerText = name;
+            document.getElementById('displayEmail').innerText = email;
+            document.getElementById('preorderForm').style.display = 'none';
+            document.getElementById('qrZone').style.display = 'block';
+        }
+    </script>
+</body>
+</html>

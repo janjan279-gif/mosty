@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MOSTY — FAQ & Kontakt</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;700;900&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- Společné styly --- */
+        :root { --bg-color: #f5f4f0; --text-main: #111111; --text-muted: #555555; --border-color: #d1d1cf; --accent-gold: #c5a059; --font-display: 'Montserrat', sans-serif; --font-serif: 'Playfair Display', serif; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background-color: var(--bg-color); color: var(--text-main); font-family: var(--font-display); line-height: 1.6; -webkit-font-smoothing: antialiased; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 0 40px; }
+        header { border-bottom: 1px solid var(--border-color); padding: 30px 0; }
+        header .container { display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 1.8rem; font-weight: 900; letter-spacing: 0.4em; text-transform: uppercase; text-decoration: none; color: var(--text-main); }
+        nav { display: flex; gap: 40px; align-items: center; }
+        nav a { text-decoration: none; color: var(--text-main); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.15em; font-weight: 500; transition: color 0.3s; }
+        nav a:hover { color: var(--accent-gold); }
+        .btn-outline { border: 1px solid var(--text-main); padding: 12px 24px; transition: all 0.3s; }
+        .btn-outline:hover { background-color: var(--text-main); color: var(--bg-color); }
+        
+        /* FAQ & Kontakt */
+        .page-header { padding: 100px 0 60px 0; border-bottom: 1px solid var(--text-main); margin-bottom: 80px; }
+        .page-header h1 { font-family: var(--font-serif); font-size: 4.5rem; line-height: 1.1; }
+        .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 100px; margin-bottom: 100px; }
+        
+        .faq-item { border-bottom: 1px solid var(--border-color); padding: 25px 0; }
+        .faq-item summary { font-weight: 500; font-size: 1.1rem; cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; }
+        .faq-item summary::after { content: '+'; font-size: 1.5rem; font-weight: 300; color: var(--text-muted); }
+        .faq-item[open] summary::after { content: '−'; }
+        .faq-item p { margin-top: 20px; font-size: 0.95rem; color: var(--text-muted); line-height: 1.8; max-width: 90%; }
+        .faq-item a { color: var(--text-main); font-weight: 700; text-decoration: none; border-bottom: 1px solid var(--accent-gold); }
+        
+        /* B2B Odměny */
+        .b2b-rewards { margin-top: 40px; padding-top: 40px; border-top: 2px solid var(--text-main); }
+        .b2b-rewards h3 { font-family: var(--font-serif); font-size: 2rem; margin-bottom: 30px; }
+        .reward-card { border-left: 2px solid var(--accent-gold); padding-left: 20px; margin-bottom: 30px; }
+        .reward-card h4 { font-size: 1.1rem; margin-bottom: 10px; }
+        .reward-card span { font-family: var(--font-serif); font-weight: 700; font-size: 1.2rem; color: var(--accent-gold); display: block; margin-bottom: 10px; }
+        .reward-card p { font-size: 0.9rem; color: var(--text-muted); }
+
+        /* Kontakt Form */
+        .contact-form { background-color: white; padding: 50px; border: 1px solid var(--border-color); position: sticky; top: 40px; }
+        .contact-form h2 { font-family: var(--font-serif); font-size: 2rem; margin-bottom: 30px; }
+        .form-group { margin-bottom: 25px; }
+        .form-group label { display: block; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 10px; color: var(--text-muted); }
+        .form-group input, .form-group textarea { width: 100%; background: transparent; border: none; border-bottom: 1px solid var(--border-color); padding: 10px 0; font-size: 1rem; font-family: var(--font-display); resize: vertical; }
+        .form-group input:focus, .form-group textarea:focus { outline: none; border-bottom-color: var(--text-main); }
+        .btn-submit { background-color: var(--text-main); color: var(--bg-color); border: none; width: 100%; padding: 18px; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.15em; font-weight: 700; cursor: pointer; transition: background-color 0.3s; margin-top: 20px; }
+        .btn-submit:hover { background-color: var(--accent-gold); }
+        
+        footer { padding: 60px 0; border-top: 1px solid var(--border-color); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em; }
+        footer .container { display: flex; justify-content: space-between; }
+        @media (max-width: 900px) { .contact-grid { grid-template-columns: 1fr; gap: 60px; } }
+    </style>
+</head>
+<body>
+
+    <!-- HLAVIČKA -->
+    <header>
+        <div class="container">
+            <a href="index.html" class="logo">Mosty</a>
+            <nav>
+                <a href="oprojektu.html">O Projektu</a>
+                <a href="index.html#aktuality">Deník</a>
+                <a href="autori.html">Autoři</a>
+                <a href="faq.html" style="color: var(--accent-gold);">Kontakt & FAQ</a>
+                <a href="index.html#podpora" class="btn-outline">Podpořit nezávisle</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="page-header">
+            <span style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.2em; color: var(--text-muted); display: block; margin-bottom: 20px;">Informace & Odměny</span>
+            <h1>Časté dotazy <br>& Kontakt.</h1>
+        </div>
+
+        <div class="contact-grid">
+            
+            <!-- Sekce FAQ & Odměny -->
+            <div>
+                <details class="faq-item" open>
+                    <summary>V jaké fázi je kniha teď a kdy přesně vyjde?</summary>
+                    <p>Kniha je aktuálně rozpracovaná. Máme kompletně napsaných 12 kapitol, nafoceno prvních 10 mostů a grafik Jan Matoušek má hotový vizuální koncept a sazbu. Vydání plánujeme na příští podzim <strong>(listopad 2027)</strong>.</p>
+                </details>
+                
+                <details class="faq-item">
+                    <summary>Bude mít kniha stejnou kvalitu jako "Nádech výdech"?</summary>
+                    <p>Ano, to je náš absolutní standard, ze kterého neslevíme. Míříme na knihu, která bude uměleckým objektem. Formát, kvalita papíru, vazba i grafické zpracování budou na sběratelské úrovni.</p>
+                </details>
+                
+                <details class="faq-item">
+                    <summary>Jaké mosty v knize najdu?</summary>
+                    <p>Cílem je zmapovat 50 nejzajímavějších železničních mostů z celé ČR. Pokud kampaň uspěje a překoná milníky, rádi ji obsahově rozšíříme o další lokace. Aktuální <strong><a href="https://docs.google.com/spreadsheets/d/1imwg5pE8Naji7G8Cr2E_Vv54h12QWLJO6txXopswf8c/edit?usp=sharing" target="_blank">pracovní orientační seznam najdete ZDE</a></strong>. Změna obsahu do vydání vyhrazena!</p>
+                </details>
+
+                <details class="faq-item">
+                    <summary>Kdy a jak dostanu svou odměnu?</summary>
+                    <p>Všechny fyzické produkty (kniha, limitované edice) budou doručovány hned po vytištění, na podzim 2027, a to formou osobního předání dle domluvy v Praze nebo na křtu. Menší odměny (digitální tapety, pohlednice) doručíme dříve. Pro podporovatele mimo Prahu se individuálně domluvíme na doručení přes Zásilkovnu (poštovné zvlášť).</p>
+                </details>
+                
+                <details class="faq-item">
+                    <summary>Lze knihu poslat i na Slovensko nebo do zahraničí?</summary>
+                    <p>Ano, pro zaslání kamkoliv do světa včetně Slovenska využijte prosím náš kontaktní formulář, vyřešíme to individuálně.</p>
+                </details>
+
+                <!-- Firemní a mecenášské odměny -->
+                <div class="b2b-rewards">
+                    <h3>Příležitosti pro partnery</h3>
+                    
+                    <div class="reward-card">
+                        <h4>Předobjednávka – Sběratelská verze</h4>
+                        <span>1 500 Kč</span>
+                        <p>Základní podpora vzniku knihy. Získáte číslovanou sběratelskou verzi knihy s podpisy autorů.</p>
+                    </div>
+
+                    <div class="reward-card">
+                        <h4>Adoptuj si svůj most (Patron kapitoly)</h4>
+                        <span>18 000 Kč</span>
+                        <p>Máte srdcový vztah k viaduktu v Kryštofově Údolí, mostu v Písku nebo železničnímu mostu pod Vyšehradem? Staňte se patronem. Vaše jméno (nebo firmy) bude hrdě vytištěno na úvodní dvoustraně této kapitoly jako její zachránce. Knihu dostanete s věnováním. Možnost faktury na firmu.</p>
+                    </div>
+                    
+                    <div class="reward-card">
+                        <h4>Balíček „Férová firma“</h4>
+                        <span>60 000 Kč</span>
+                        <p>Pro stavební, dopravní a architektonické firmy, které nechtějí podporovat netransparentní chování na trhu. Získáte 10 ks knih jako exkluzivní dárky pro své partnery a velké logo v sekci partnerů, kteří drží slovo.</p>
+                    </div>
+                    
+                    <div class="reward-card">
+                        <h4>Generální partner knihy</h4>
+                        <span>300 000 Kč</span>
+                        <p>Maximální propojení vaší značky s projektem. Celostránkové poděkování uvnitř, logo, 25 ks knih zdarma a status zachránce celého projektu v médiích. Ideální pro velké hráče s potřebou skvělého PR.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Kontaktní formulář (Odesílá zprávy přímo na e-mail janjan279@gmail.com) -->
+            <div>
+                <div class="contact-form">
+                    <h2>Spojte se s námi</h2>
+                    <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 25px;">Zajímáte se o sponzorství, potřebujete darovací smlouvu nebo vystavit fakturu? Napište nám.</p>
+                    
+                    <form action="https://formsubmit.co/janjan279@gmail.com" method="POST">
+                        <!-- Skrytá políčka pro nastavení odesílání -->
+                        <input type="hidden" name="_subject" value="Nová zpráva z webu MOSTY!">
+                        <input type="hidden" name="_captcha" value="false">
+                        
+                        <div class="form-group">
+                            <label>Vaše jméno / Firma</label>
+                            <input type="text" name="Jméno" required>
+                        </div>
+                        <div class="form-group">
+                            <label>E-mail</label>
+                            <input type="email" name="Email" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Zpráva (uveďte např. o který most máte zájem)</label>
+                            <textarea name="Zpráva" rows="4" required></textarea>
+                        </div>
+
+                        <!-- GDPR Checkbox pro kontaktní formulář -->
+                        <label style="font-size: 0.7rem; color: var(--text-muted); display: flex; align-items: center; gap: 10px; cursor: pointer; margin-top: 15px;">
+                            <input type="checkbox" required style="accent-color: var(--text-main);">
+                            Souhlasím se zpracováním osobních údajů (GDPR).
+                        </label>
+
+                        <button type="submit" class="btn-submit">Odeslat zprávu</button>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- ========================================== -->
+    <!-- NEWSLETTER SEKCE (Napojeno na Google Forms)-->
+    <!-- ========================================== -->
+    <section class="newsletter-section" style="padding: 80px 0; border-top: 1px solid var(--border-color); background-color: white;">
+        <div class="container" style="display: flex; justify-content: space-between; align-items: center; gap: 40px; flex-wrap: wrap;">
+            
+            <div style="max-width: 500px;">
+                <h2 style="font-family: var(--font-serif); font-size: 2rem; margin-bottom: 10px;">Zůstaňte v obraze</h2>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">Zanechte nám e-mail a my se vám ozveme, jakmile kniha zamíří do tisku nebo spustíme kampaň.</p>
+            </div>
+
+            <form action="https://docs.google.com/forms/d/e/1FAIpQLSeEf6yzc3dPp5tYE8K6102OXJPFLbYhWq0QrtikHStq1DWBgQ/formResponse" method="POST" target="_blank" style="flex-grow: 1; max-width: 500px; display: flex; flex-direction: column; gap: 15px;">
+                <div style="display: flex; border-bottom: 1px solid var(--text-main);">
+                    <input type="email" name="entry.1692910955" placeholder="Váš e-mail" required style="width: 100%; border: none; padding: 15px 0; font-family: var(--font-display); font-size: 1rem; outline: none; background: transparent; color: var(--text-main);">
+                    <button type="submit" style="background: none; border: none; font-family: var(--font-display); font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer; padding: 0 15px; color: var(--text-main);">Odebírat</button>
+                </div>
+                
+                <label style="font-size: 0.7rem; color: var(--text-muted); display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                    <input type="checkbox" required style="accent-color: var(--text-main);">
+                    Souhlasím se zpracováním osobních údajů pro zasílání novinek (GDPR).
+                </label>
+            </form>
+
+        </div>
+    </section>
+
+    <!-- PATIČKA -->
+    <footer>
+        <div class="container">
+            <div>&copy; 2026 Projekt MOSTY</div>
+            <div style="color: var(--text-muted);">Design / Kniha jako artefakt</div>
+        </div>
+    </footer>
+
+</body>
+</html>

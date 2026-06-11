@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MOSTY — Autorský tým</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;700;900&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- Společné styly --- */
+        :root { --bg-color: #f5f4f0; --text-main: #111111; --text-muted: #555555; --border-color: #d1d1cf; --accent-gold: #c5a059; --font-display: 'Montserrat', sans-serif; --font-serif: 'Playfair Display', serif; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background-color: var(--bg-color); color: var(--text-main); font-family: var(--font-display); line-height: 1.6; -webkit-font-smoothing: antialiased; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 0 40px; }
+        header { border-bottom: 1px solid var(--border-color); padding: 30px 0; }
+        header .container { display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 1.8rem; font-weight: 900; letter-spacing: 0.4em; text-transform: uppercase; text-decoration: none; color: var(--text-main); }
+        nav { display: flex; gap: 40px; align-items: center; }
+        nav a { text-decoration: none; color: var(--text-main); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.15em; font-weight: 500; transition: color 0.3s; }
+        nav a:hover { color: var(--accent-gold); }
+        .btn-outline { border: 1px solid var(--text-main); padding: 12px 24px; transition: all 0.3s; }
+        .btn-outline:hover { background-color: var(--text-main); color: var(--bg-color); }
+        
+        /* Stránka Autoři */
+        .page-header { padding: 100px 0 60px 0; border-bottom: 1px solid var(--text-main); margin-bottom: 80px; }
+        .page-header h1 { font-family: var(--font-serif); font-size: 4.5rem; line-height: 1.1; }
+        
+        /* Blok autora */
+        .author-block { display: grid; grid-template-columns: 300px 1fr; gap: 80px; margin-bottom: 100px; padding-bottom: 60px; border-bottom: 1px solid var(--border-color); }
+        .author-portrait { width: 100%; aspect-ratio: 3/4; border: 1px solid var(--border-color); overflow: hidden; background-color: #ddd; }
+        .author-portrait img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(10%) contrast(105%); transition: filter 0.5s; display: block; }
+        .author-portrait img:hover { filter: grayscale(0%); }
+        
+        .author-info h2 { font-size: 3rem; font-family: var(--font-serif); margin-bottom: 10px; }
+        .author-role { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.2em; color: var(--accent-gold); display: block; margin-bottom: 30px; }
+        .author-bio { font-size: 1.1rem; color: var(--text-muted); max-width: 700px; }
+        .author-bio p { margin-bottom: 20px; }
+        
+        /* Sekce s referenčními knihami */
+        .past-works { margin-top: 40px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 30px; max-width: 600px; }
+        .work-card { border: 1px solid var(--border-color); padding: 15px; background: white; text-align: center; }
+        .work-card img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; filter: grayscale(10%); margin-bottom: 15px; display: block; }
+        .work-card h4 { font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 5px; }
+        .work-card p { font-size: 0.8rem; color: var(--text-muted); }
+
+        blockquote { font-family: var(--font-serif); font-style: italic; font-size: 1.3rem; border-left: 3px solid var(--accent-gold); padding-left: 20px; margin: 30px 0; color: var(--text-main); }
+        footer { padding: 60px 0; border-top: 1px solid var(--border-color); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em; }
+        footer .container { display: flex; justify-content: space-between; }
+        @media (max-width: 900px) { .author-block { grid-template-columns: 1fr; gap: 40px; } .author-portrait { width: 200px; } .past-works { grid-template-columns: 1fr; } }
+    </style>
+
+    <!-- Skript pro automatické daisy-chain vyhledávání správných formátů -->
+    <script>
+        function tryImages(img, filenames, fallback) {
+            if (!img.dataset.tryIndex) img.dataset.tryIndex = "0";
+            let idx = parseInt(img.dataset.tryIndex);
+            if (idx < filenames.length) {
+                img.dataset.tryIndex = (idx + 1).toString();
+                img.src = filenames[idx];
+            } else {
+                img.src = fallback;
+                img.onerror = null; // Zamezení nekonečné smyčce
+            }
+        }
+    </script>
+</head>
+<body>
+
+    <header>
+        <div class="container">
+            <a href="index.html" class="logo">Mosty</a>
+            <nav>
+                <a href="oprojektu.html">O Projektu</a>
+                <a href="index.html#aktuality">Deník</a>
+                <a href="mosty.html">Kniha & Ukázky</a>
+                <a href="autori.html" style="color: var(--accent-gold);">Autoři</a>
+                <a href="faq.html">Kontakt & FAQ</a>
+                <a href="index.html#podpora" class="btn-outline">Podpořit nezávisle</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="page-header">
+            <span style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.2em; color: var(--text-muted); display: block; margin-bottom: 20px;">Garance kvality</span>
+            <h1>Tvůrčí tým.</h1>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- 1. JAN CHARVÁT + REFERENCE                 -->
+        <!-- ========================================== -->
+        <div class="author-block">
+            <div class="author-portrait">
+                <!-- FOTKA 1: Jan Charvát Portrét -->
+                <img src="charvát.png" 
+                     onerror="tryImages(this, ['charvát.jpg', 'charvát.jpeg', 'Charvát.png', 'Charvát.jpg'], 'https://lh3.googleusercontent.com/d/11D1oiNKl_x4ii6PTz5rhJK8EGAEBji6I')" 
+                     alt="Jan Charvát">
+            </div>
+            <div class="author-info">
+                <h2>Jan Charvát</h2>
+                <span class="author-role">Autor a publicista</span>
+                <div class="author-bio">
+                    <p>Publicista, dokumentarista a autor vizuálně i obsahově výjimečných knižních projektů. Dlouhá léta působil jako člen kultovního pražského uměleckého a vydavatelského uskupení BiggBoss a podílel se na trilogii <em>Kmeny</em>.</p>
+                    <p>Je autorem oceňovaných knih <strong>Nádech výdech (2017)</strong> o architektuře vzduchotechniky pražského metra a <strong>Metrovize (2019)</strong>. Svůj precizní přístup k rešerším získal během novinářské kariéry – začínal v ČTK, působil jako investigativní reportér v Českém rozhlase 1 (Radiožurnál) se specializací na tajné služby a armádu, a následně jako reportér a dramaturg v pořadu Fakta České televize.</p>
+                </div>
+                
+                <div class="past-works">
+                    <!-- FOTKA 2: Kniha Nádech výdech -->
+                    <div class="work-card">
+                        <img src="nadech-vydech-jan-charvat-biggboss-2017-261716501.jpeg" 
+                             onerror="tryImages(this, ['nadech-vydech-jan-charvat-biggboss-2017-261716501.jpg', 'nadech-vydech-jan-charvat-biggboss-2017-261716501.png', 'nadech-vydech-jan-charvat-biggboss-2017-261716501.png'], 'https://lh3.googleusercontent.com/d/1Wj80q_l0dIs1z5HvSApIcDyx3N0bw7zB')" 
+                             alt="Kniha Nádech výdech">
+                        <h4>Nádech výdech</h4>
+                        <p>Vzduchotechnika metra (2017)</p>
+                    </div>
+                    <!-- FOTKA 3: Kniha Metrovize -->
+                    <div class="work-card">
+                        <img src="metrovize.png" 
+                             onerror="tryImages(this, ['metrovize.jpg', 'metrovize.jpeg', 'metrovize.PNG', 'metrovize.JPG'], 'https://lh3.googleusercontent.com/d/1HR4S6xZ7imN1YQ4VRhS3MY0H8vMlhDEl')" 
+                             alt="Kniha Metrovize">
+                        <h4>Metrovize</h4>
+                        <p>Architektura pražského metra (2019)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- 2. JAN MATOUŠEK                            -->
+        <!-- ========================================== -->
+        <div class="author-block">
+            <div class="author-portrait">
+                <!-- FOTKA 4: Jan Matoušek Portrét -->
+                <img src="matousek.png" 
+                     onerror="tryImages(this, ['matousek.jpg', 'matousek.jpeg', 'matousek.PNG', 'matousek.JPG', 'Matousek.png'], 'https://lh3.googleusercontent.com/d/1SG6vOyul46CVpdc0EW18kPfZ6QWN4Sqi')" 
+                     alt="Jan Matoušek">
+            </div>
+            <div class="author-info">
+                <h2>Jan Matoušek</h2>
+                <span class="author-role">Grafický design</span>
+                <div class="author-bio">
+                    <p>Etablovaný pražský grafický designér, typograf a držitel prestižního ocenění <strong>Czech Grand Design (2019)</strong>. Je absolventem pražské UMPRUM, prošel Studiem Najbrt a Laboratoří. Tvořil identity pro Národní filmový archiv, festival Den architektury či Laternu magiku.</p>
+                    <p>Pro knihu MOSTY navrhuje zcela unikátní koncept. Grafické řešení se neomezuje na suché sázění fotografií, ale reflektuje grafickou poezii vlakových jízdních řádů a technických výkresů.</p>
+                    <blockquote>„Mosty pro mě nejsou jen dopravní stavby, ale rytmus, linie a konstrukce, které chceme přenést přímo do samotné struktury stránek a vazby.“</blockquote>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- 3. PAVEL HROCH                             -->
+        <!-- ========================================== -->
+        <div class="author-block">
+            <div class="author-portrait">
+                <!-- FOTKA 5: Pavel Hroch Portrét -->
+                <img src="hroch.png" 
+                     onerror="tryImages(this, ['hroch.jpg', 'hroch.jpeg', 'hroch.PNG', 'hroch.JPG', 'Hroch.png'], 'https://lh3.googleusercontent.com/d/1wPY7_UcFeIVZvRFUwIqo_ajd-wL8cNIT')" 
+                     alt="Pavel Hroch">
+            </div>
+            <div class="author-info">
+                <h2>Pavel Hroch</h2>
+                <span class="author-role">Dokumentární fotografie</span>
+                <div class="author-bio">
+                    <p>Renomovaný dokumentární fotograf a vizuální kronikář s mimořádně širokým záběrem – fotografoval v Mexiku, Rusku, na Kubě i v Afghánistánu. Vystavoval mimo jiné ve Sněmovně reprezentantů USA ve Washingtonu. S autorem Janem Charvátem ho pojí společná minulost v ČTK.</p>
+                    <p>Milovníkům architektury je známý jako dvorní fotograf úspěšných knih historika Zdeňka Lukeše (<em>Skrytá krása detailu</em>, <em>Praha moderní</em>) a autorským albem <em>Pustým městem (2020)</em>. V projektu MOSTY zachycuje atmosféru a genia loci železničních staveb zasazených do krajiny.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- 4. JAN TŘEŠTÍK                             -->
+        <!-- ========================================== -->
+        <div class="author-block" style="border-bottom: none;">
+            <div class="author-portrait">
+                <!-- FOTKA 6: Jan Třeštík Portrét -->
+                <img src="třeštík.png" 
+                     onerror="tryImages(this, ['třeštík.jpg', 'třeštík.jpeg', 'Třestík.png', 'Třestík.jpg', 'trestik.png'], 'https://lh3.googleusercontent.com/d/1teN2dSVOIxT845A6aT6hoGYqwLuonZtG')" 
+                     alt="Jan Třeštík">
+            </div>
+            <div class="author-info">
+                <h2>Jan Třeštík</h2>
+                <span class="author-role">Fotografie</span>
+                <div class="author-bio">
+                    <p>Legendární český fotograf, jehož rukopis definuje hluboký kontrast a cit pro syrovou výpověď černobílé fotografie. V letech 1997–2002 působil jako <strong>osobní fotograf prezidenta Václava Havla</strong>, kterého doprovázel od Bílého domu po Vatikán (kniha <em>Prezidentovi v patách</em>).</p>
+                    <p>S Janem Charvátem a J. Matouškem tvoří úspěšný tvůrčí triumvirát díky knize <em>Nádech výdech</em>. Do knihy MOSTY přináší zkušenosti s prací se světlem v industriálním prostředí.</p>
+                    <blockquote>„Jeho doménou je monumentálnost. Tam, kde ostatní vidí obyčejný viadukt, dokáže najít nadčasovou sílu lidského umu a dramatickou hru světla.“</blockquote>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ========================================== -->
+    <!-- NEWSLETTER SEKCE (Napojeno na Google Forms)-->
+    <!-- ========================================== -->
+    <section class="newsletter-section" style="padding: 80px 0; border-top: 1px solid var(--border-color); background-color: white;">
+        <div class="container" style="display: flex; justify-content: space-between; align-items: center; gap: 40px; flex-wrap: wrap;">
+            <div style="max-width: 500px;">
+                <h2 style="font-family: var(--font-serif); font-size: 2rem; margin-bottom: 10px;">Zůstaňte v obraze</h2>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">Zanechte nám e-mail a my se vám ozveme, jakmile kniha zamíří do tisku nebo spustíme kampaň.</p>
+            </div>
+            <form action="https://docs.google.com/forms/d/e/1FAIpQLSeEf6yzc3dPp5tYE8K6102OXJPFLbYhWq0QrtikHStq1DWBgQ/formResponse" method="POST" target="_blank" style="flex-grow: 1; max-width: 500px; display: flex; flex-direction: column; gap: 15px;">
+                <div style="display: flex; border-bottom: 1px solid var(--text-main);">
+                    <input type="email" name="entry.1692910955" placeholder="Váš e-mail" required style="width: 100%; border: none; padding: 15px 0; font-family: var(--font-display); font-size: 1rem; outline: none; background: transparent; color: var(--text-main);">
+                    <button type="submit" style="background: none; border: none; font-family: var(--font-display); font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer; padding: 0 15px; color: var(--text-main);">Odebírat</button>
+                </div>
+                <label style="font-size: 0.7rem; color: var(--text-muted); display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                    <input type="checkbox" required style="accent-color: var(--text-main);"> Souhlasím se zpracováním osobních údajů pro zasílání novinek (GDPR).
+                </label>
+            </form>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div>&copy; 2026 Projekt MOSTY</div>
+            <div style="color: var(--text-muted);">Design / Kniha jako artefakt</div>
+        </div>
+    </footer>
+
+</body>
+</html>

@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MOSTY — Kniha & Ukázky</title>
+    
+    <!-- Prémiová typografie -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;700;900&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    
+    <!-- Knihovna PDF.js od Mozilly pro lokální renderování tvého originálního PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+
+    <style>
+        /* --- HIGH-END EDITORIAL DESIGN SYSTEM --- */
+        :root {
+            --bg-color: #f5f4f0;
+            --text-main: #111111;
+            --text-muted: #555555;
+            --border-color: #d1d1cf;
+            --accent-gold: #c5a059;
+            --font-display: 'Montserrat', sans-serif;
+            --font-serif: 'Playfair Display', serif;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        body { background-color: var(--bg-color); color: var(--text-main); font-family: var(--font-display); line-height: 1.6; -webkit-font-smoothing: antialiased; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 0 40px; }
+
+        /* Hlavička / Navigace */
+        header { border-bottom: 1px solid var(--border-color); padding: 30px 0; background-color: var(--bg-color); }
+        header .container { display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 1.8rem; font-weight: 900; letter-spacing: 0.4em; text-transform: uppercase; text-decoration: none; color: var(--text-main); }
+        nav { display: flex; gap: 40px; align-items: center; }
+        nav a { text-decoration: none; color: var(--text-main); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.15em; font-weight: 500; transition: color 0.3s; }
+        nav a:hover { color: var(--accent-gold); }
+        .btn-outline { border: 1px solid var(--text-main); padding: 12px 24px; transition: all 0.3s; text-decoration: none; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.15em; font-weight: 500; color: var(--text-main); }
+        .btn-outline:hover { background-color: var(--text-main); color: var(--bg-color); }
+
+        /* Nadpis Stránky */
+        .page-header { padding: 100px 0 60px 0; border-bottom: 1px solid var(--text-main); margin-bottom: 60px; }
+        .page-header h1 { font-family: var(--font-serif); font-size: 4.5rem; line-height: 1.1; }
+
+        /* ========================================== */
+        /* PDF DROPZONE (Minimalistický nahrávač)     */
+        /* ========================================== */
+        .pdf-dropzone {
+            border: 1px dashed var(--border-color);
+            padding: 25px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.4);
+            margin-bottom: 40px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            font-weight: 700;
+            color: var(--text-muted);
+        }
+        .pdf-dropzone:hover {
+            border-color: var(--text-main);
+            background: white;
+            color: var(--text-main);
+        }
+
+        /* ========================================== */
+        /* 3D FLIPBOOK SIMULATOR STYLY               */
+        /* ========================================== */
+        .book-viewport {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 0;
+            background-color: #eae9e4; /* Mírně tmavší krémová pro hloubku stínů */
+            border: 1px solid var(--border-color);
+            margin-bottom: 80px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .book-container {
+            width: 100%;
+            max-width: 1000px;
+            height: 700px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .book-element {
+            background-color: #fff;
+            box-shadow: 0 30px 70px rgba(0,0,0,0.15), 0 10px 20px rgba(0,0,0,0.1);
+            display: flex;
+            position: relative;
+            transform-origin: center center;
+            transition: transform 0.3s ease;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        /* Ohyb uprostřed knihy (Zobrazuje se pouze u dvoustran) */
+        .spine-fold {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            width: 24px;
+            height: 100%;
+            background: linear-gradient(to right, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.02) 25%, rgba(0,0,0,0) 50%, rgba(0,0,0,0.02) 75%, rgba(0,0,0,0.15) 100%);
+            transform: translateX(-50%);
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        /* Kontejner pro zobrazení obsahu (Maketa / Canvas) */
+        .book-content-wrapper {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Styl pro čisté vektorové dvoustrany (když není načteno PDF) */
+        .book-page-mockup {
+            width: 100%;
+            height: 100%;
+            display: flex;
+        }
+
+        .mockup-half {
+            width: 50%;
+            height: 100%;
+            padding: 50px 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-sizing: border-box;
+        }
+
+        .mockup-left {
+            border-right: 1px solid rgba(0,0,0,0.05);
+            background: linear-gradient(to right, #ffffff 95%, #f7f7f5 100%);
+        }
+
+        .mockup-right {
+            background: linear-gradient(to left, #ffffff 95%, #f7f7f5 100%);
+        }
+
+        /* Typografie uvnitř knihy */
+        .p-coord {
+            font-family: var(--font-display);
+            font-size: 0.7rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--accent-gold);
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .p-subtitle {
+            font-family: var(--font-serif);
+            font-size: 2.2rem;
+            font-weight: 400;
+            line-height: 1.2;
+            margin-bottom: 25px;
+            color: var(--text-main);
+        }
+
+        .p-text {
+            font-family: var(--font-serif);
+            font-size: 0.95rem;
+            line-height: 1.7;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+        }
+
+        .p-num {
+            font-family: var(--font-display);
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            display: block;
+            margin-top: auto;
+        }
+
+        /* Ovládací tlačítka listování */
+        .book-controls {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .control-btn {
+            background: var(--text-main);
+            color: var(--bg-color);
+            border: none;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .control-btn:hover:not(:disabled) {
+            background-color: var(--accent-gold);
+        }
+
+        .control-btn:disabled {
+            background-color: var(--border-color);
+            color: #888;
+            cursor: not-allowed;
+        }
+
+        #pageIndicator {
+            font-family: var(--font-display);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        /* ========================================== */
+        /* UKÁZKOVÉ KAPITOLY (AKORDEON)              */
+        /* ========================================== */
+        .samples-section { margin-bottom: 100px; }
+        .sample-accordion { display: flex; flex-direction: column; }
+        .sample-row { border-bottom: 1px solid var(--border-color); padding: 30px 0; }
+        .sample-trigger { display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+        .sample-meta { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent-gold); display: block; margin-bottom: 10px; }
+        .sample-title { font-family: var(--font-serif); font-size: 2.2rem; font-weight: 400; }
+        .sample-icon { font-size: 2rem; font-weight: 300; transition: transform 0.3s; }
+        
+        /* Dynamický ne-ořezávající akordeon */
+        .sample-content { 
+            max-height: 0; 
+            overflow: hidden; 
+            transition: max-height 0.5s ease; 
+        }
+        
+        .chapter-text { padding-top: 30px; max-width: 900px; font-family: var(--font-serif); font-size: 1.15rem; line-height: 1.8; color: #333; }
+        .chapter-text p { margin-bottom: 25px; }
+        .chapter-text blockquote { border-left: 3px solid var(--accent-gold); padding-left: 30px; margin: 40px 0; font-style: italic; color: var(--text-main); font-size: 1.3rem; }
+
+        .sample-row.active .sample-icon { transform: rotate(45deg); }
+
+        /* ========================================== */
+        /* SEZNAM CHYSTANÝCH MOSTŮ (DATABÁZE)        */
+        /* ========================================== */
+        .database-section { margin-bottom: 100px; }
+        .db-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 40px; padding-bottom: 15px; border-bottom: 1px solid var(--text-main); }
+        .db-header h2 { font-family: var(--font-serif); font-size: 2.5rem; font-weight: 400; }
+        
+        .search-container { display: grid; grid-template-columns: 1fr auto; gap: 20px; margin-bottom: 30px; }
+        .search-input { width: 100%; border: 1px solid var(--border-color); background: white; padding: 15px 20px; font-family: var(--font-display); font-size: 0.95rem; outline: none; }
+        .search-input:focus { border-color: var(--text-main); }
+        .filter-select { border: 1px solid var(--border-color); background: white; padding: 15px 30px 15px 20px; font-family: var(--font-display); font-size: 0.95rem; outline: none; cursor: pointer; }
+        
+        .table-responsive { width: 100%; overflow-x: auto; border: 1px solid var(--border-color); background: white; }
+        .bridge-table { width: 100%; border-collapse: collapse; text-align: left; }
+        .bridge-table th, .bridge-table td { padding: 20px 25px; border-bottom: 1px solid var(--border-color); font-size: 0.9rem; }
+        .bridge-table th { background-color: #faf9f6; text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.75rem; font-weight: 700; color: var(--text-muted); }
+        .bridge-table tr:last-child td { border-bottom: none; }
+        
+        .status-badge { display: inline-block; padding: 6px 14px; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; text-decoration: none; border-radius: 4px; transition: all 0.3s; }
+        .status-badge.adopted { background-color: var(--text-main); color: var(--bg-color); }
+        .status-badge.available { border: 1px solid var(--accent-gold); color: var(--accent-gold); background-color: transparent; }
+        .status-badge.available:hover { background-color: var(--accent-gold); color: white; }
+
+        /* Responzivita */
+        @media (max-width: 900px) {
+            .page-header h1 { font-size: 3rem; }
+            .book-container { height: auto; }
+            .mockup-half { width: 100%; padding: 30px; }
+            .book-page-mockup { flex-direction: column; }
+            .mockup-left { border-right: none; border-bottom: 1px solid var(--border-color); }
+            .search-container { grid-template-columns: 1fr; gap: 15px; }
+            nav { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAVIGACE -->
+    <header>
+        <div class="container">
+            <a href="index.html" class="logo">Mosty</a>
+            <nav>
+                <a href="oprojektu.html">O Projektu</a>
+                <a href="index.html#aktuality">Deník</a>
+                <a href="autori.html">Autoři</a>
+                <a href="mosty.html" style="color: var(--accent-gold);">Kniha & Ukázky</a>
+                <a href="faq.html">Kontakt & FAQ</a>
+                <a href="index.html#podpora" class="btn-outline">Podpořit nezávisle</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- ZÁHLAVÍ STRÁNKY -->
+        <div class="page-header">
+            <span style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.2em; color: var(--text-muted); display: block; margin-bottom: 20px;">Čtení & Listování</span>
+            <h1>Prohlédněte si <br>sazbu knihy.</h1>
+        </div>
+
+        <!-- MINIMALISTICKÁ OBLAST PRO INTERAKTIVNÍ NAHRÁNÍ PDF -->
+        <div class="pdf-dropzone" onclick="document.getElementById('pdfFileInput').click()">
+            <span id="dropzoneText">📥 Přetáhněte sem soubor book_240x180-MM25-5.pdf nebo klikněte pro nahrání</span>
+            <input type="file" id="pdfFileInput" style="display: none;" accept="application/pdf" onchange="handleFileSelect(this)">
+        </div>
+
+        <!-- ========================================== -->
+        <!-- 1. 3D FLIPBOOK SIMULATOR                   -->
+        <!-- ========================================== -->
+        <section class="book-viewport">
+            <div class="book-container" id="bookContainer">
+                <div class="book-element" id="bookElement">
+                    
+                    <!-- Zóna pro renderování obsahu (PDF / Mockup) -->
+                    <div class="book-content-wrapper" id="bookContent"></div>
+                    
+                    <!-- Ohyb hřbetu uprostřed (zobrazuje se u dvoustran) -->
+                    <div class="spine-fold" id="spineFold"></div>
+                    
+                </div>
+            </div>
+
+            <!-- Ovládací prvky listování -->
+            <div class="book-controls">
+                <button class="control-btn" id="prevBtn" onclick="prevPage()" aria-label="Předchozí strana">←</button>
+                <span id="pageIndicator">Obálka</span>
+                <button class="control-btn" id="nextBtn" onclick="nextPage()" aria-label="Další strana">→</button>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- 2. UKÁZKOVÉ KAPITOLY (AKORDEON)            -->
+        <!-- ========================================== -->
+        <section class="samples-section">
+            <div class="sample-accordion">
+                
+                <!-- 1. UKÁZKA: Chýnovský viadukt -->
+                <div class="sample-row" id="sample-0">
+                    <div class="sample-trigger" onclick="toggleSample(0)">
+                        <div>
+                            <span class="sample-meta">Ukázková kapitola 01 / 49.4104422N, 14.8179417E</span>
+                            <h3 class="sample-title">Chýnovský viadukt</h3>
+                        </div>
+                        <div class="sample-icon">+</div>
+                    </div>
+                    <div class="sample-content">
+                        <article class="chapter-text" style="max-width: 950px; padding-bottom: 40px;">
+                            <h4 style="font-family: var(--font-serif); font-size: 2rem; font-weight: 400; margin-bottom: 25px; line-height: 1.3;">
+                                Negramotný hrabě a hrnčířův syn <br><span style="font-style: italic; color: var(--accent-gold);">nad Močítkem</span>
+                            </h4>
+
+                            <p>Železnice přinášela v 19.století do regionů, měst či obcí do té doby nebývalý hospodářský a společenský rozvoj. Co to pro místa, kam se dostaly páru vyfukující a jiskry prskající železná monstra, doopravdy znamenalo, si lze představit snad příměrem k zavedení mobilního signálu a internetu. Železná dráha umožnila odříznutým lokalitám přepravu komodit ve dosud nevídaném měřítku (počínaje uhlím a železnou rudou, přes dřevo a zemědělské produkty až po minerální vody z Luhačovic nebo nábytku z Koryčan) a nadto měla schopnost posunout život obyčejných lidí rychlejším cestováním za prací, vzděláním či dokonce rekreací na novou, do té doby zcela nebývalou úroveň.</p>
+                            
+                            <p>Cílem _Českomoravské transverzální dráhy_ nebylo pouze propojit významná města, ale souborem „lokálek“ zajistit příčné (tangenciální ) spojení mezi Čechami a Moravou. Tento přístup doplňoval stávající hlavní tahy, které byly primárně orientovány severo-jižně a směřovaly k vídenňskému centru monarchie. Původní záměr projektu byl i proto zaměřen zejména na nákladní dopravu a propojení zemědělských a průmyslových oblastí s již existující železniční infrastrukturou.</p>
+                            
+                            <p>Výstavba železnic v tehdejší době probíhala v rámci rozsáhlé finanční spolupráce mezi státem a soukromým sektorem. Stát podporoval vznik místních drah prostřednictvím bezúročných hypoték, přímých subvencí nebo garancí zúročení základního kapitálu, což bylo zásadním důvodem pro výstavbu tratí, které by jinak nebyly ekonomicky realizovatelné.</p>
+                            
+                            <blockquote>
+                                „Tunely, mosty a viadukty a další stavby umožňující zrod tohoto zázraku 19.století zůstávají i nyní, o dvě století později, v kameni a železe zhmotněnou připomínkou vůle člověka odmítajícího přijmout krajinu za překážku.“
+                            </blockquote>
+
+                            <p>Překážku, kterou člověk sám přetvořil v cestu, která sice sbližuje, ale dokáže zabíjet. Jejich výsledný účel je definován až činy, k nimž jsou využity. Jsou jen tichými svědky lidských záměrů – ať ušlechtilých, či krutých.</p>
+
+                            <p>Takový je i _Chýnovský viadukt_. Devět polokruhových kleneb viaduktu se pne na osmi dutých štíhlých pilířích (sutí vysypaných) z neopracované žuly z nedalekého kamenolomu. Na stejné trati má další tři menší bratry – západně od Chýnova obdobný šestiobloukový most přes Kloužovický potok, přes Chotovinský potok a přes Turovecký potok (Pořínský viadukt). Dalším zajímavým konstrukčním prvkem je (obdobně jako v případě většího Žampašského viaduktu) pět kusů kamenných krakorců pod patami oblouků, sloužících během stavby k podchycení lešení – dnes již jen esteticky rozrušující monolitičnost žulových pilířů.</p>
+
+                            <!-- PRVNÍ FOTOGRAFIE PAVLA HROCHA (Pohled zespodu na majestátní pilíře) -->
+                            <div style="margin: 40px 0; border: 1px solid var(--border-color); background-color: #e2e1dc; overflow: hidden; box-shadow: 0 10px 20px rgba(0,0,0,0.05);">
+                                <img src="_MSF6484.jpg" 
+                                     onerror="tryImages(this, ['_MSF6484.png', '_msf6484.jpg', 'mosty vis.jpg'], 'https://lh3.googleusercontent.com/d/17-PFkTPE6e_nwig6in4T2-XkY9DyQdHb')" 
+                                     alt="Chýnovský viadukt, monumentální kamenné pilíře z podhledu" 
+                                     style="width: 100%; height: auto; display: block; filter: grayscale(100%) contrast(105%); transition: filter 0.5s;">
+                                <div style="padding: 15px 20px; font-family: var(--font-display); font-size: 0.75rem; color: var(--text-muted); border-top: 1px solid var(--border-color); background: #faf9f6; line-height: 1.5;">
+                                    _01_ Kamenné pilíře tyčící se k nebi jako gotické opěry nad údolím Močítka. <span style="font-weight: 700;">Foto: Pavel Hroch</span>
+                                </div>
+                            </div>
+
+                            <h5 style="font-family: var(--font-display); font-size: 1rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent-gold); margin: 40px 0 20px 0;">Lidé za tichým kamením</h5>
+
+                            <p>_Chýnovský viadukt_ is nejen nadčasovým inženýrským a estetickým dílem, ale i pomníkem meritokratických trendů a kontrastních osudů. Práce na něm spojila dva věkem zcela jiné muže z jiných koutů rakouského mocnářství, ale společného ducha: _Giacoma Ceconiho_, italského stavitele, který se z téměř negramotného nádeníka z Friulska vypracoval k titulu hraběte, a místního rodáka a syna hrnčíře _Ludvíka Zatěrandu_.</p>
+
+                            <p>Začněme Zatěrandou. Narodil se do skromných poměrů chýnovské rodiny v roce 1861. Po ukončení místní trojtřídky se vyučí truhlářem a s tovaryšským listem se vydává na zkušenou do světa. V 26 letech jej osud přivádí zpět k bydlišti, když získává práci na výstavbě nové železnice. Z pomocných prací se ale brzy vypracovává vzhůrů – tehdy 54 letý italský stavitel Ceconi v mladému Čechovi na Táborsku možná obraz sebe samotného i schopností a dává mu úřednickou pozici, následně mu umožňuje další vzdělávání a zasvěcuje jej hlouběji do problematiky stavitelských prací. Zatěranda se mu odvděčil pílí a v rámci v té době ohromné firmy svého chlebodárce se následně podílí na dalších, strategicky mnohem významnějších stavbách – včetně alpské železniční tratě _Klaus-Seltzhal_.</p>
+                            
+                            <p>Vzestup _Ludvíka Zatěrandy_, syna hrnčíře – tedy tradičního řemesla industrializací záhy odsouzeného k zániku – až k moderní profesi stavitele železnice, ilustruje stále více se projevující meritokratické a trendy pozdního 19.století. Železnice byla bezesporu největší dobovou inženýrskou výzvou a Zatěranda se stává jejím symbolickým spolutvůrcem i výtvorem.</p>
+
+                            <p>To, že masivní industrializace a modernizace fakticky zbořila po staletí platné pořádky, snad ale ještě lépe dokládá právě příběh jeho šéfa a ochránce – selfmademana non plus ultra, _Ceconiho_. Také pocházel z nuzných poměrů – původně byl dokonce, narozdíl od Zatěrandy, téměř úplně negramotný. Z horské oblasti italského Friulska odchází v 18 letech jako nádeník (_manovale_) hledat štěstí do Terstu, tehdy hlavního (a jediného) rakousko-uherského námořního přístavu a zároveň čtvrtého největšího města mocnářství po Vídni, Budapešti a Praze.</p>
+
+                            <p>Mladý _Ceconi_ je ale nejen sebevědomý a přirozeně inteligentní ale také důsledný a neuvěřitelně pracovitý. Své nedostatky si uvědomoval a okamžitě se věnoval samostudiu – navštěvoval večerní kurzy, kde se naučil zednickému řemeslu, a postupně si osvojoval základy geometrického kreslení. To mu umožnilo překonat propast mezi pouhým dělníkem a stavbyvedoucím. Jeho organizační schopnosti a charisma ho ale posouvaly mnohem dál. Možná i tato jeho ranná formativní zkušenost vysvětluje, why je později jeho filantropie spojená se vzděláváním: chápal, že formální znalosti, byť třeba získané svépomocí, představují klíč k úspěchu i sociální mobilitě.</p>
+                            
+                            <p>Ve svých 24 letech získává první vlastní stavební zakázky – spoléhá přitom na své krajany. Jeho sázka na regionální friulskou identitu (sjednocenou stejným jazykem i kulturou) pokládá základ pro mohutnou organizaci známou později jako _Impresa Ceconi_, jež v dobách svého největšího rozmachu zaměstnává přes 16.000 dělníků (!) rozptýlených na zakázkách po všech koutech Rakouska-Uherska. V dobách, které neznaly firemní hodnoty, HR manažery a inkluzivitu, mu to přináší konkurenční výhodu – jeho dělníci drží pohromadě a jím řízené stavby se nemusí potýkat s problémy způsobenými v té době tolik četnými nacionálními i dalšími sváry.</p>
+
+                            <p>Jednou z prvních staveb, které mu pomohou v získání uznání a přístupu k dalším velkým zakázkám, se stává výstavba monumentálního viaduktu _Borovnica_ na území dnešního Slovinska. S délkou 561 metrů a výškou 38 metrů to byl jeden z největších kamenných mostů své doby. Následuje podle mnohých zdrojů jeho další stavitelský triumf, kterým je stavba desetikilometrového alpského _Arlberského tunelu_ propoující západní Švýcarsko s Tyrolskem. Inženýrská perla, precizně provedená, je hotová za necelé čtyři roky, vyslouží si celosvětový obdiv a _Ceconimu_ přinese povýšení do šlechtického stavu (s titulem hrabě Ceconi di Montececon) z rukou samotného císaře Františka Josefa I. Pevný a trvalý otisk zanechá ale i v zemích koruny české – vedle Chýnovského a sousedních viaduktů pak především v perle mostního stavitelství 19.století - mostu _Červená nad Vltavou_.</p>
+
+                            <p>_Ceconi_ byl muž, který vyzařoval neúnavnost a fyzickou sílu. Byl popisován jako muž mimořádné fyzické robustnosti (_straordinaria robustezza fisica_), s živou myslí (_vivace nella mente_). Navzdory vnější drsnosti (_un po' ruvido nella scorza_) byl v duši velkorysý (_generoso nell’animo_). Vždy se honosil pečlivě upravenou bradkou a knírem a o jeho cestě k úspěchu se tradovaly legendy: „Partì da Vito d'Asio con la polenta in saccoccia e quando tornò si comprò le mountains…“ Z Vito d'Asio vyšel, s polentou v kapsách, o pár let zpátky - hory mu patří, hle - boháč…”).</p>
+
+                            <!-- DRUHÁ FOTOGRAFIE PAVLA HROCHA (S průjezdem vlaku RegioNova na mostě) -->
+                            <div style="margin: 40px 0; border: 1px solid var(--border-color); background-color: #e2e1dc; overflow: hidden; box-shadow: 0 10px 20px rgba(0,0,0,0.05);">
+                                <img src="_MSF6399.jpg" 
+                                     onerror="tryImages(this, ['_MSF6399.png', '_msf6399.jpg', 'Snímek obrazovky 2026-05-20 101359.png'], 'https://lh3.googleusercontent.com/d/1Wj80q_l0dIs1z5HvSApIcDyx3N0bw7zB')" 
+                                     alt="Motorový vlak RegioNova projíždějící po Chýnovském viaduktu" 
+                                     style="width: 100%; height: auto; display: block; filter: grayscale(100%) contrast(102%); transition: filter 0.5s;">
+                                <div style="padding: 15px 20px; font-family: var(--font-display); font-size: 0.75rem; color: var(--text-muted); border-top: 1px solid var(--border-color); background: #faf9f6; line-height: 1.5;">
+                                    _02_ Lokální motorový vlak překonává s tichým klapotem hluboké údolí nad Chýnovem. <span style="font-weight: 700;">Foto: Pavel Hroch</span>
+                                </div>
+                            </div>
+
+                            <p>Byl ale také filantrop – vystavěl desítky škol, budoval veřejnou infrastrukturu, podporoval místní živnostníky. Svůj rodinný dům _Val Nespolaria_ přestavěl na honosné novogotické sídlo _Castello Ceconi_ v Pielungu, ve kterém měli za války sídlo italští partyzáni, a které je dnes veřejně přístupné. Velký stavitel, podnikatel a samouk zemřel o dva roky dříve než jeho jihočeský chráněnec. V rodišti má své náměstí a ve friulském Udine nese jeho jméno Státní odborný institut.</p>
+
+                            <p>Ale ani na Zatěrandu v jeho rodišti i zároveň místě posledního skonu nezapomněli. Na nádraží má pamětní desku a je po něm pojmenovaná i místní ulice. Svoji ulici a pamětní desku má v Chýnově samozřejmě i další, slavnější místní rodák – sochař, grafik a architekt _František Bílek_. Stejně jako v Praze, i tady má svoji vilu a našel tu také místo posledního odpočinku. Jeho monumentální figurální socha _Modlitba nad hroby_, která původně vznikla obezděním uschlého kmene stromu (který byl později nahrazen umělým kamenem), shlíží na místním hřmitově nad jeho hrobem právě směrem k _Chýnovskému viaduktu_, ukrytému jen 200 metrů za lesem nad přilehlým údolím Močítka, kde se potkal hrabě se synem hrnčíře.</p>
+                        </article>
+                    </div>
+                </div>
+
+                <!-- 2. UKÁZKA: Branický most -->
+                <div class="sample-row" id="sample-1">
+                    <div class="sample-trigger" onclick="toggleSample(1)">
+                        <div>
+                            <span class="sample-meta">Ukázková kapitola 02 / 50.0268264N, 14.3975103E</span>
+                            <h3 class="sample-title">Branický most (Most inteligence)</h3>
+                        </div>
+                        <div class="sample-icon">+</div>
+                    </div>
+                    <div class="sample-content">
+                        <article class="chapter-text" style="max-width: 950px; padding-bottom: 40px;">
+                            <h4 style="font-family: var(--font-serif); font-size: 2rem; font-weight: 400; margin-bottom: 25px; line-height: 1.3;">
+                                Nejdražší lávka světa <br><span style="font-style: italic; color: var(--accent-gold);">aneb racek nad mamutem</span>
+                            </h4>
+
+                            <p>Vlajka deváté jamky na golfovém hřišti v Hodkovičkách se třepotá ve větru. Je to relativně lehký „třípár” s greenem chráněným písečným bunkrem, který dokáže potrestat nepřesnost a krátkou hru z odpaliště. Těsně nad koncem hřiště se pne jedno z 15 polí Branického mostu s rozpětím 53,5 metru. Možná žádný z dnes zde hrajících golfistů netuší, že most ve své době pomáhalo stavět možná i pár dalších golfistů. Byť tehdy zde žádné golfové hřiště nebylo - v Praze se tehdy golf hrál fakticky jen v Motole.</p>
+
+                            <p>Padesátá léta minulého století patřila k těm historicky nejtěžším. Komunistické čistky, lágry, politické procesy, popravy. Rok 1951 přidal další dílek do stalinistické skládačky sociálního inženýrství. Od vedoucích pozic je potřeba odstavit nejen ty náznakově nespolehlivé, ale i ty s intelektuálním potenciálem vykazovat protirežimní postoje. Je potřeba je včas odstavit a prací rukama je svázat s dělnickou třídou. Přichází Akce 77 – 77 000 úředníků má nastoupit do výroby, na dělnické profese a naopak dělníci po krátkém školení nastoupí na privilegovaná místa do armády, justice, továren či družstev.</p>
+
+                            <blockquote>
+                                „Byli to soudci, byli to notáři, byli to profesoři, byli to podnikatelé,” vzpomínal po desítkách let na skladbu nových stavitelů mostu stavební inženýr Vladimír Křížek, který se podílel na projektování s mostem souvisejících vedlejších staveb. Ze státní služby do výroby podle některých údajů nakonec opravdu přešlo více než 50 000 lidí. Stovky z nich se pak podílely na stavbě mostu, kterému nakonec daly neoficiální a asi i nejvíce zažité jméno – Most inteligence.
+                            </blockquote>
+
+                            <p>Cesta k jeho vzniku započala ale již na počátku 20. století spolu s nápady na výstavbu železničního obchvatu Prahy pro nákladní dopravu. Problémy v pražské železniční dopravě, konkrétně přetížení a kolizi osobní a nákladní dopravy způsobené roztříštěností sítě a dramatickým urbanistickým rozvojem Velké Prahy si uvědomovalo již ředitelství C. k. státních drah a problémy nadále eskalovaly ve 20. letech.</p>
+
+                            <p>První návrhy na Branický most, který měl tyto obtíže napomoci řešit, předložil komisi Pražského nádraží v roce 1920 Josef Kubler. O sedm let později tento návrh zopakoval v rámci své koncepce i železniční projektant Miroslav Chlumecký, který se se svým „Dispozičním plánem budoucích železničních úprav v Praze" snažil metropolitní dopravní zádrhele vyřešit koncepčně. Jeho vizionářství bylo v následujících desítkách let opakovaně potvrzeno realizací jím předestřených staveb: podle jeho představy se vybudovalo nejen nákladové nádraží Žižkov, ale ve finále také právě Branický most a dlouho po jeho smrti i železniční Holešovický most.</p>
+
+                            <!-- PRVNÍ FOTOGRAFIE PAVLA HROCHA (Betonové schodiště zespodu - _DSC2996.jpg) -->
+                            <div style="margin: 40px 0; border: 1px solid var(--border-color); background-color: #e2e1dc; overflow: hidden; box-shadow: 0 10px 20px rgba(0,0,0,0.05);">
+                                <img src="_DSC2996.jpg" 
+                                     onerror="tryImages(this, ['_DSC2996.png', '_dsc2996.jpg', 'Snímek obrazovky 2026-05-20 101359.png'], 'https://lh3.googleusercontent.com/d/1PRz3GJQjUWx9CakvXynD068pY1KZ9bkP')" 
+                                     alt="Branický most, brutalistní betonové schodiště s rampou" 
+                                     style="width: 100%; height: auto; display: block; filter: grayscale(100%) contrast(105%); transition: filter 0.5s;">
+                                <div style="padding: 15px 20px; font-family: var(--font-display); font-size: 0.75rem; color: var(--text-muted); border-top: 1px solid var(--border-color); background: #faf9f6; line-height: 1.5;">
+                                    _01_ Monumentální betonové schodiště s rampou pro pěší tyčící se na pražském břehu mostu. <span style="font-weight: 700;">Foto: Pavel Hroch</span>
+                                </div>
+                            </div>
+
+                            <p>Stále bez projektové dokumentace na nový železniční most přes Vltavu začaly přípravné práce na Jižní (Branickou) železniční spojku již v roce 1949. Plány, podle kterých byla čtyři roky trvající výstavba zahájena v roce 1951, připravil nakonec projektant železniční správy (a v 60. letech ředitel SUDOP) Jiří Klimeš. Tento úkol ho podle dobových svědectví potěšil – dětství prožil v Modřanech a Vltavu měl rád i jako vodák, který ji projel ze Šumavy až do Prahy. V rámci přípravy návrhů prostudoval velké železobetonové mosty v zahraničí a rozhodl se pro most z plochých oblouků, spřažených s rámy mostovky v jeden celek. Spolu se Zbyňkem Krušinou a Vladislavem Valouškem nakonec předložili tři návrhy.</p>
+
+                            <p>Hlavní inspirací se mu stal silniční most vybudovaný ve 20. letech švýcarským inženýrem Robertem Maillartem přes Rýn u Tavansa s výškou 51 m – konstrukce v podstatě tvořená skříňovým trojkloubovým železobetonovým obloukem. V prvorepublikovém Československu myšlenku tohoto švýcarského stavitele rozvedl (odstraněním kloubů) v roce 1935 inženýr Schumadl ve svém projektu Masarykova mostu přes řeku Už v Užhorodě (Most vyhodily do povětří při ústupu před Rudou armádou maďarské jednotky a po válce byl opraven do původní podoby zachované dodnes i s obnoveným prvorepublikovým názvem po prvním prezidentovi ČSR). Při řešení délky tohoto 13. pražského mostu přes Vltavu zavrhl Klimeš náspy a zvolil dlouhé přemostění o délce téměř celého kilometru. Důvodů měl několik – riziko povodní souvisejících i s chystanou výstavbou Vltavské kaskády, estetiku a také rekreační místa u Vltavy, o které by Pražané přišli vybudováním velkých náspů u Vltavy.</p>
+
+                            <p>Ocelová varianta byla zamítnuta kvůli poválečnému nedostatku oceli. „V socialistickém hospodářství byly správně pochopeny výhody..(betonu): nepatrné udržovací náklady, nespalitelnost, nehlučivost, vodotěsnost, vzhled, láci a hlavně malou spotřebu oceli,” vysvětlil promptně v dobové publikaci z roku 1955 věnované „velkým dílům naší vlasti” autor Jiří Streit výhody způsobené tehdejším nedostatkem oceli v dobovém stále pokračujícím boji proti domnělé stále aktivní prvorepublikové ocelářské lobby.</p>
+
+                            <p>Zbyly dvě betonové varianty. A o nich nakonec rozhodli lampasáci. Lidová armáda totiž požadovala konstrukci, dostatečně odolnou i pro případ zřícení jednoho z oblouků. Vybrána tak byla varianta s větším počtem kratších oblouků, nadto s naddimenzovanými, tzv. skupinovými či zdvojenými pilíři. Toto řešení jinak velmi elegantní konstrukci ubralo na subtilnosti.</p>
+
+                            <blockquote>
+                                „Tak mi to připadá, jako když rackové letí. Krásné to je,” okomentoval i přesto vítězný Klimešův návrh na zasedání výběrové komise profesor ČVUT a odborník na betonové konstrukce, Vladimír Koloušek.
+                            </blockquote>
+
+                            <p>A ruce si mohli zamnout i socialističtí plánovači – 4 000 tun takto ušetřené oceli se mohlo použít ve zbrojní či jiné strategické výrobě. Samotná výstavba mostu přinesla nejen technické výzvy, ale i nečekaná odhalení a dramatické momenty. Pilíře byly zakládány i s pomocí kesonů. Tato technologie se používala při stavbě mostů přes vodní toky s nestabilním podložím. Keson je vlastně dutý zvon sloužící zároveň jako pracovní komora, jež se postupně zapouští do zeminy. Když je spuštěn do požadované hloubky, jeho pracovní komora se vyplní betonem, čímž se vytvoří masivní a stabilní základ pro mostní pilíř. Vrchní část kesonu se pak stává součástí pilíře.</p>
+
+                            <p>Je to ale metoda nákladná a složitá a dnes i překonaná. Dělníci pracující pod přetlakem bývali vystaveni riziku kesonové nemoci (známé u potápěčů jako dekompresní nemoc) způsobené rychlým snížením tlaku a v některých případech i smrtící. Kesony byly použity na mnoha ikonických stavbách, jako je Brooklynský most v New Yorku, v Praze pak poprvé v případě Palackého mostu. V případě Branického mostu byly použity rekordně velké kesony ze železobetonové žebrované konstrukce (ocel bylo potřeba šetřit i tady) o rozměrech až 15,8 x 29,5 metrů a s váhou mezi 2 800–4 700 tun. Některé z nich byly na své místo dopravovány i po vodě.</p>
+
+                            <p>V přetlaku 1,2 atmosféry v kesonech pracovaly na tři směny skupiny 14 dělníků. Volno měli jenom v neděli. Jedním z nich byl i Christian Meyer. Schopný bankovní úředník ve Státní bance československé ovládal několik světových jazyků. Po komunistickém puči v roce 1948 odmítl vstoupit do KSČ, což mu přineslo výpověď a účast na začátku kapitoly zmíněném projektu Akce 77. Dva roky fáral v kladenských dolech a skončil na stavbě Branického mostu v Praze, kde nastoupil nejprve jako tesař a pak se podílel právě na výstavbě pilířů pod hladinou Vltavy. Pod hladinou strávil téměř čtyři roky a celkem neuvěřitelných 7 000 hodin. „Nesměli tam chodit velcí kořalové, ti to dlouho nevydrželi. Ale já jsem kdysi sportoval, tak jsem to vydržel do těch třiceti metrů,“ vzpomínal s odstupem desítek let Meyer. „Třeba z toho vylezli kluci, najednou je za okem nebo v hlavě něco děsně tlačilo. Tak museli zpátky do vzdušnice. Jedna byla vždycky volná, tak ji zavřeli a v té vzdušnici seděl tak dlouho, až se ten tlak srovnal.“</p>
+
+                            <p>Při práci jednou jeho směna našla i mamutí kel. Paleontologové ale neměli radost jenom z Meyerova nálezu. V dobové literatuře je zmiňován i nález mamutí stoličky, mamutí kosti, kusu lebky prehistorického kozorožce či sobího paroží.</p>
+
+                            <p>Při budování pilíře číslo 6 se stavba ale málem změnila v katastrofu. Během betonáže první výplňové vrstvy v komoře kesonu, který seděl na skále, totiž došlo k nečekanému nárůstu tlaku vzduchu. Vzduch si našel cestu ven dosud nezatvrdlým betonem a s ohlušujícím akustickým doprovodem z podloží vystříkl gejzír bahna a kamení. Dělníků a inženýrů na břehu a nad hladinou Vltavy se zmocnil strach o osud kolegů. Beton naštěstí zabránil vniknutí bahna do kesonu a i přes náraz vzduchu se jim nic nestalo a o smrtelném nebezpečí se dozvěděli až po výstupu ven.</p>
+
+                            <p>V létě 1952 již byl zbudován dostatek pilířů a mohlo se začít s betonováním kleneb a stavbou skruží pro bednění. O dva roky později byly dokončeny skruže mezi druhým a třetím pilířem a vybetonovány klenby mezi prvním a třetím pilířem na chuchelské straně. Pak zbývalo jen dodělat rámy a klenby, provést izolaci, navézt štěrk a položit koleje. Stavba mostu inteligence byla hotova. Jednalo se zároveň o labutí píseň mostních kesonů – žádný další železniční most se od té doby s pomocí kesonů u nás nestavěl.</p>
+
+                            <!-- DRUHÁ FOTOGRAFIE PAVLA HROCHA (Most nad golfovým hřištěm - _DSC3365.jpg) -->
+                            <div style="margin: 40px 0; border: 1px solid var(--border-color); background-color: #e2e1dc; overflow: hidden; box-shadow: 0 10px 20px rgba(0,0,0,0.05);">
+                                <img src="_DSC3365.jpg" 
+                                     onerror="tryImages(this, ['_DSC3365.png', '_dsc3365.jpg', 'mosty vis.jpg'], 'https://lh3.googleusercontent.com/d/17-PFkTPE6e_nwig6in4T2-XkY9DyQdHb')" 
+                                     alt="Branický most nad golfovým hřištěm Hodkovičky" 
+                                     style="width: 100%; height: auto; display: block; filter: grayscale(100%) contrast(100%); transition: filter 0.5s;">
+                                <div style="padding: 15px 20px; font-family: var(--font-display); font-size: 0.75rem; color: var(--text-muted); border-top: 1px solid var(--border-color); background: #faf9f6; line-height: 1.5;">
+                                    _02_ Oblouky Branického mostu majestátně překonávající hřiště v Hodkovičkách. <span style="font-weight: 700;">Foto: Pavel Hroch</span>
+                                </div>
+                            </div>
+
+                            <p>Příběh mostu tím ale neskončil. V roce 1955 byla provedena úspěšná zatěžovací zkouška mostu, do provozu uveden ale nebyl, protože nebyly dokončeny návazné úseky trati na chuchelské straně. Sloužit tak začal bez fanfár až v květnu 1964 – tedy až po devíti letech od dostavby. To mu vysloužilo nelichotivou přezdívku „Nejdražší lávka na světě“. Nadto z něj nedlouho po dokončení byla z dnes neznámých důvodů snesena druhá kolej. Ta se na něj vrátila až při povedené rekonstrukci v letech 2023–2025. Oficiálního pojmenování Branický most se stavba dočkala až v roce 1969. To už byl ale mezi lidmi zlidovělý název „most inteligence“.</p>
+
+                            <p>Běžná osobní doprava by na tuto původně ryze nákladní trať měla přibýt zřízením nové městské linky S71 z Radotína do Běchovic přes Zahradní Město. Projít se dnes po opraveném „letícím rackovi” ale může již dnes legálně každý – vedle vrácené druhé koleje na něj přibyla i dokonce zelená turistická trasa. Začíná poblíž Branického nádraží v Modřanské ulici a ústí na protější vltavský břeh u cyklostezky pod Strakonickou.</p>
+                        </article>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- 3. SEZNAM CHYSTANÝCH MOSTŮ (DATABÁZE)     -->
+        <!-- ========================================== -->
+        <section class="database-section">
+            <div class="db-header">
+                <h2>Seznam chystaných mostů</h2>
+                <span style="color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.1em;">Kurátorský výběr z celé ČR</span>
+            </div>
+
+            <!-- Hledání a filtrování -->
+            <div class="search-container">
+                <input type="text" id="dbSearch" class="search-input" placeholder="Vyhledat most podle názvu nebo lokace..." onkeyup="filterBridges()">
+                <select id="dbRegionFilter" class="filter-select" onchange="filterBridges()">
+                    <option value="">Všechny kraje</option>
+                    <option value="Praha">Praha</option>
+                    <option value="Jihočeský">Jihočeský kraj</option>
+                    <option value="Středočeský">Středočeský kraj</option>
+                    <option value="Královéhradecký">Královéhradecký kraj</option>
+                    <option value="Karlovarský">Karlovarský kraj</option>
+                    <option value="Liberecký">Liberecký kraj</option>
+                    <option value="Plzeňský">Plzeňský kraj</option>
+                    <option value="Jihomoravský">Jihomoravský kraj</option>
+                    <option value="Pardubický">Pardubický kraj</option>
+                    <option value="Ústecký">Ústecký kraj</option>
+                    <option value="Olomoucký">Olomoucký kraj</option>
+                    <option value="Vysočina">Kraj Vysočina</option>
+                </select>
+            </div>
+
+            <!-- Responzivní Tabulka -->
+            <div class="table-responsive">
+                <table class="bridge-table" id="bridgeTable">
+                    <thead>
+                        <tr>
+                            <th>Název mostu / Viaduktu</th>
+                            <th>Kraj / Lokace</th>
+                            <th>Typ konstrukce</th>
+                            <th>Mapa / GPS</th>
+                            <th>Adopce (B2B)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bridgeTableBody">
+                        <!-- Data se vykreslí pomocí JS níže -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ========================================== -->
+    <!-- NEWSLETTER SEKCE                           -->
+    <!-- ========================================== -->
+    <section class="newsletter-section" style="padding: 80px 0; border-top: 1px solid var(--border-color); background-color: white; margin-top: 100px;">
+        <div class="container" style="display: flex; justify-content: space-between; align-items: center; gap: 40px; flex-wrap: wrap;">
+            <div style="max-width: 500px;">
+                <h2 style="font-family: var(--font-serif); font-size: 2rem; margin-bottom: 10px;">Zůstaňte v obraze</h2>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">Zanechte nám e-mail a my se vám ozveme, jakmile kniha zamíří do tisku nebo spustíme kampaň.</p>
+            </div>
+            <form action="https://docs.google.com/forms/d/e/1FAIpQLSeEf6yzc3dPp5tYE8K6102OXJPFLbYhWq0QrtikHStq1DWBgQ/formResponse" method="POST" target="_blank" style="flex-grow: 1; max-width: 500px; display: flex; flex-direction: column; gap: 15px;">
+                <div style="display: flex; border-bottom: 1px solid var(--text-main);">
+                    <input type="email" name="entry.1692910955" placeholder="Váš e-mail" required style="width: 100%; border: none; padding: 15px 0; font-family: var(--font-display); font-size: 1rem; outline: none; background: transparent; color: var(--text-main);">
+                    <button type="submit" style="background: none; border: none; font-family: var(--font-display); font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer; padding: 0 15px; color: var(--text-main);">Odebírat</button>
+                </div>
+                <label style="font-size: 0.7rem; color: var(--text-muted); display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                    <input type="checkbox" required style="accent-color: var(--text-main);"> Souhlasím se zpracováním osobních údajů pro zasílání novinek (GDPR).
+                </label>
+            </form>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div>&copy; 2026 Projekt MOSTY</div>
+            <div style="color: var(--text-muted);">Design / Kniha jako artefakt</div>
+        </div>
+    </footer>
+
+    <!-- ========================================================== -->
+    <!-- JAVASCRIPT LOGIKA PRO FLIPBOOK, AKORDEON A VYHLEDÁVÁNÍ     -->
+    <!-- ========================================================== -->
+    <script>
+        // PDF.js globální konfigurace workeru
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+
+        let pdfDoc = null;
+        let currentPage = 0; // 0 = Obálka, 1 = První dvoustrana...
+        let totalPages = 0;
+
+        // --- DEFINICE VEKTOROVÝCH STRÁNEK (Když není načteno skutečné PDF) ---
+        const pagesData = [
+            // STRÁNKA 1: Obálka (portrait)
+            {
+                type: "cover",
+                content: `
+                    <div class="book-page-mockup" style="justify-content: center;">
+                        <div style="border: 2px solid var(--accent-gold); width: 500px; height: 100%; display: flex; flex-direction: column; justify-content: space-between; padding: 40px; text-align: center; box-sizing: border-box;">
+                            <span style="font-family: var(--font-display); font-size: 0.8rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--accent-gold);">Kniha jako artefakt</span>
+                            <div>
+                                <h1 style="font-family: var(--font-serif); font-size: 4rem; font-weight: 900; letter-spacing: 0.1em; margin-bottom: 10px;">MOSTY</h1>
+                                <div style="width: 60px; height: 1px; background: var(--accent-gold); margin: 30px auto;"></div>
+                                <p style="font-family: var(--font-serif); font-size: 1.1rem; font-style: italic; color: #555;">Ztělesnění inženýrské odvahy</p>
+                            </div>
+                            <span style="font-family: var(--font-display); font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-muted);">&copy; 2026 / Edice Artefakt</span>
+                        </div>
+                    </div>
+                `
+            },
+            // STRÁNKA 2: Dvoustrana Branický most (landscape)
+            {
+                type: "spread",
+                content: `
+                    <div class="book-page-mockup">
+                        <!-- Levá strana -->
+                        <div class="mockup-half mockup-left">
+                            <span class="p-coord">50.0268264N, 14.3975103E</span>
+                            <h2 class="p-subtitle">Nejdražší lávka světa</h2>
+                            <p class="p-text">Vlajka deváté jamky na golfovém hřišti v Hodkovičkách se třepotá ve větru. Těsně nad koncem hřiště se pne jedno z 15 polí Branického mostu s rozpětím 53,5 metru. Možná žádný z dnes zde hrajících golfistů netuší, že most ve své době pomáhalo stavět možná i pár dalších golfistů.</p>
+                            <p class="p-text">50. léta minulého století patřila k těm historicky nejtěžším. Komunistické čistky, lágry, politické procesy, popravy. Rok 1951 přidal další dílek do stalinistické skládačky sociálního inženýrství.</p>
+                            <span class="p-num">02</span>
+                        </div>
+                        <!-- Pravá strana -->
+                        <div class="mockup-half mockup-right">
+                            <span class="p-coord">Historické pozadí Akce 77</span>
+                            <h2 class="p-subtitle">Soudci, notáři a profesoři u lopaty</h2>
+                            <p class="p-text">„Byli to soudci, byli to notáři, byli to profesoři, byli to podnikatelé,“ vzpomínal po desítkách let stavební inženýr Vladimír Křížek. Stovky z nich se pak podílely na stavbě mostu, kterému nakonec daly neoficiální a asi i nejvíce zažité jméno – Most inteligence.</p>
+                            <p class="p-text">Ocelová varianta byla zamítnuta kvůli poválečnému nedostatku oceli. Zbyly dvě betonové varianty, o nichž rozhodla Lidová armáda. Ta požadovala konstrukci dostatečně odolnou i pro případ zřícení jednoho z oblouků.</p>
+                            <span class="p-num">03</span>
+                        </div>
+                    </div>
+                `
+            },
+            // STRÁNKA 3: Dvoustrana Chýnovský viadukt (landscape)
+            {
+                type: "spread",
+                content: `
+                    <div class="book-page-mockup">
+                        <!-- Levá strana -->
+                        <div class="mockup-half mockup-left">
+                            <span class="p-coord">49.4104422N, 14.8179417E</span>
+                            <h2 class="p-subtitle">Negramotný hrabě a hrnčířův syn</h2>
+                            <p class="p-text">Železnice přinášela v 19. století do regionů, měst či obcí do té doby nebývalý hospodářský a společenský rozvoj. Chýnovský viadukt je nejen nadčasovým inženýrským a estetickým dílem, ale i pomníkem meritokratických trendů a kontrastních osudů.</p>
+                            <p class="p-text">Práce na něm spojila dva věkem zcela jiné muže z jiných koutů rakouského mocnářství, ale společného ducha: Giacoma Ceconiho, italského stavitele, který se z téměř negramotného nádeníka vypracoval k titulu hraběte, a místního rodáka Ludvíka Zatěrandu, syna chudého hrnčíře.</p>
+                            <span class="p-num">08</span>
+                        </div>
+                        <!-- Pravá strana -->
+                        <div class="mockup-half mockup-right">
+                            <span class="p-coord">Duchovní odkaz Chýnova</span>
+                            <h2 class="p-subtitle">Modlitba nad hroby shlížející k viaduktu</h2>
+                            <p class="p-text">Zatěrandu v jeho rodišti nezapomněli – na nádraží v Chýnově má pamětní desku. Svoji ulici a pamětní desku má v Chýnově samozřejmě i slavnější místní rodák, sochař, grafik a mystický architekt František Bílek.</p>
+                            <p class="p-text">Bílek v Chýnově našel také místo svého posledního odpočinku. Jeho monumentální figurální socha Modlitba nad hroby shlíží na místním hřbitově nad jeho hrobem přesně směrem k Chýnovskému viaduktu.</p>
+                            <span class="p-num">09</span>
+                        </div>
+                    </div>
+                `
+            }
+        ];
+
+        // --- MANIPULACE S SOUBORY PDF ---
+        function handleFileSelect(input) {
+            const file = input.files[0];
+            if (!file) return;
+            loadPDFFile(file);
+        }
+
+        // Podpora drag and drop na plochu dropzone
+        const dropzone = document.querySelector('.pdf-dropzone');
+        dropzone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropzone.style.borderColor = 'var(--text-main)';
+            dropzone.style.backgroundColor = 'rgba(255, 255, 255, 0.8)';
+        });
+        dropzone.addEventListener('dragleave', () => {
+            dropzone.style.borderColor = 'var(--border-color)';
+            dropzone.style.backgroundColor = 'rgba(255, 255, 255, 0.4)';
+        });
+        dropzone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropzone.style.borderColor = 'var(--border-color)';
+            dropzone.style.backgroundColor = 'rgba(255, 255, 255, 0.4)';
+            const file = e.dataTransfer.files[0];
+            if (file && file.type === "application/pdf") {
+                loadPDFFile(file);
+            }
+        });
+
+        function loadPDFFile(file) {
+            document.getElementById('dropzoneText').innerText = `Načítání: ${file.name}...`;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const typedarray = new Uint8Array(e.target.result);
+                pdfjsLib.getDocument(typedarray).promise.then(function(pdf) {
+                    pdfDoc = pdf;
+                    totalPages = pdf.numPages;
+                    currentPage = 0;
+                    document.getElementById('dropzoneText').innerText = `✓ Načteno PDF: ${file.name} (${totalPages} stran)`;
+                    document.getElementById('dropzoneText').style.color = 'var(--accent-gold)';
+                    resizeBook();
+                }).catch(function(error) {
+                    console.error("Chyba při čtení PDF:", error);
+                    document.getElementById('dropzoneText').innerText = "Chyba při čtení souboru. Zkuste to znovu.";
+                });
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        // --- AUTOMATICKÉ NAČTENÍ PDF ZE SLOŽKY ---
+        function autoLoadPDF() {
+            const pdfUrl = 'book_240x180-MM25-5.pdf';
+            fetch(pdfUrl)
+                .then(response => {
+                    if (!response.ok) throw new Error("Nelze načíst soubor napřímo.");
+                    return response.arrayBuffer();
+                })
+                .then(arrayBuffer => {
+                    const typedarray = new Uint8Array(arrayBuffer);
+                    pdfjsLib.getDocument(typedarray).promise.then(function(pdf) {
+                        pdfDoc = pdf;
+                        totalPages = pdf.numPages;
+                        currentPage = 0;
+                        document.getElementById('dropzoneText').innerText = `✓ Automaticky načteno PDF: ${pdfUrl} (${totalPages} stran)`;
+                        document.getElementById('dropzoneText').style.color = 'var(--accent-gold)';
+                        resizeBook();
+                    });
+                })
+                .catch(err => {
+                    console.log("Automatické načtení lokálního PDF se nezdařilo:", err.message);
+                });
+        }
+
+        // --- NEPRŮSTŘELNÉ SKALOVÁNÍ SIMULÁTORU ---
+        function resizeBook() {
+            const container = document.getElementById('bookContainer');
+            const book = document.getElementById('bookElement');
+            const spine = document.getElementById('spineFold');
+            if (!container || !book) return;
+
+            const containerWidth = container.clientWidth;
+            const containerHeight = container.clientHeight;
+
+            if (pdfDoc) {
+                pdfDoc.getPage(currentPage + 1).then(function(page) {
+                    const viewport = page.getViewport({ scale: 1.0 });
+                    const aspectRatio = viewport.width / viewport.height;
+                    const isSinglePage = (currentPage === 0);
+                    
+                    const targetWidth = isSinglePage ? 500 : 1000;
+                    const targetHeight = targetWidth / aspectRatio;
+
+                    const scaleX = containerWidth / targetWidth;
+                    const scaleY = containerHeight / targetHeight;
+                    let scale = Math.min(scaleX, scaleY);
+
+                    if (scale > 1.1) scale = 1.1;
+
+                    book.style.transform = `scale(${scale})`;
+                    book.style.width = `${targetWidth}px`;
+                    book.style.height = `${targetHeight}px`;
+                    container.style.height = `${targetHeight * scale}px`;
+
+                    if (isSinglePage) {
+                        spine.style.display = 'none';
+                    } else {
+                        spine.style.display = 'block';
+                    }
+
+                    renderCurrentPage();
+                });
+            } else {
+                const isSinglePage = (currentPage === 0);
+                const targetWidth = isSinglePage ? 500 : 1000;
+                const targetHeight = 667;
+
+                const scaleX = containerWidth / targetWidth;
+                const scaleY = containerHeight / targetHeight;
+                let scale = Math.min(scaleX, scaleY);
+
+                if (scale > 1.1) scale = 1.1;
+
+                book.style.transform = `scale(${scale})`;
+                book.style.width = `${targetWidth}px`;
+                book.style.height = `${targetHeight}px`;
+                container.style.height = `${targetHeight * scale}px`;
+
+                if (isSinglePage) {
+                    spine.style.display = 'none';
+                } else {
+                    spine.style.display = 'block';
+                }
+
+                renderCurrentPage();
+            }
+        }
+
+        // --- VYKRESLENÍ OBSAHU ---
+        function renderCurrentPage() {
+            const contentContainer = document.getElementById('bookContent');
+            const pageIndicator = document.getElementById('pageIndicator');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+
+            prevBtn.disabled = currentPage === 0;
+            
+            if (pdfDoc) {
+                nextBtn.disabled = currentPage === totalPages - 1;
+                pageIndicator.innerText = `Strana ${currentPage + 1} / ${totalPages}`;
+                
+                contentContainer.innerHTML = '<canvas id="pdfCanvas" style="width: 100%; height: 100%; display: block;"></canvas>';
+                const canvas = document.getElementById('pdfCanvas');
+                const ctx = canvas.getContext('2d');
+
+                pdfDoc.getPage(currentPage + 1).then(function(page) {
+                    const viewport = page.getViewport({ scale: 2.0 });
+                    canvas.width = viewport.width;
+                    canvas.height = viewport.height;
+
+                    const renderContext = {
+                        canvasContext: ctx,
+                        viewport: viewport
+                    };
+                    page.render(renderContext);
+                });
+            } else {
+                nextBtn.disabled = currentPage === pagesData.length - 1;
+                const page = pagesData[currentPage];
+                if (page.type === "cover") {
+                    pageIndicator.innerText = "Obálka";
+                } else {
+                    pageIndicator.innerText = `Dvoustrana ${currentPage}`;
+                }
+                contentContainer.innerHTML = page.content;
+            }
+        }
+
+        function prevPage() {
+            if (currentPage > 0) {
+                currentPage--;
+                resizeBook();
+            }
+        }
+
+        function nextPage() {
+            const maxPage = pdfDoc ? totalPages - 1 : pagesData.length - 1;
+            if (currentPage < maxPage) {
+                currentPage++;
+                resizeBook();
+            }
+        }
+
+        // Ovládání šipkami
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') prevPage();
+            if (e.key === 'ArrowRight') nextPage();
+        });
+
+        window.addEventListener('load', () => {
+            resizeBook();
+            window.addEventListener('resize', resizeBook);
+            autoLoadPDF();
+        });
+
+        // --- NEPRŮSTŘELNÉ GENEROVÁNÍ HYPERLINKU MAPY.COM PODLE TVÉHO VZORU ---
+        function generateMapLink(lat, lon, gpsLabel) {
+            const q = encodeURIComponent(gpsLabel.trim());
+            const lonTrunc = lon.toFixed(5);
+            const id = encodeURIComponent(`${lonTrunc},${lat}`);
+            return `https://mapy.com/cs/zakladni?q=${q}&source=coor&id=${id}&ds=2&x=${lon.toFixed(7)}&y=${lat.toFixed(7)}&z=17`;
+        }
+
+        // --- KOMPLETNÍ DATABÁZE 53 HISTORICKÝCH MOSTŮ Z TVÉHO PLAIN COPY ---
+        // Všechny GPS souřadnice odpovídají přesně tvému dokumentu
+        const bridgesData = [
+            { name: "Sepekovský viadukt / Viadukt Božetice", loc: "Jihočeský", type: "Kamenný / železobetonový oblouk", gps: "49.4389217N, 14.4425622E", lat: 49.4389217, lon: 14.4425622, patron: "Volný k adopci", status: "available" },
+            { name: "Negrelliho viadukt", loc: "Praha", type: "Kamenný klenbový", gps: "50.0975914N, 14.4407331E", lat: 50.0975914, lon: 14.4407331, patron: "Volný k adopci", status: "available" },
+            { name: "Most Pardubice - Jaroměř - Labe", loc: "Pardubický", type: "Ocelový příhradový", gps: "50.036027078N, 15.72799623E", lat: 50.0360271, lon: 15.7279962, patron: "Volný k adopci", status: "available" },
+            { name: "Hranické viadukty", loc: "Olomoucký", type: "Kamenný / cihlový obloukový", gps: "49°33′42.99″ N, 17°43′46.72″ E", lat: 49.5619417, lon: 17.7296444, patron: "Volný k adopci", status: "available" },
+            { name: "Žampašský viadukt / V Kocourech", loc: "Středočeský", type: "Kamenný klenbový", gps: "49.8730644N, 14.4877692E", lat: 49.8730644, lon: 14.4877692, patron: "Volný k adopci", status: "available" },
+            { name: "Novinský viadukt", loc: "Liberecký", type: "Kamenný obloukový viadukt", gps: "50.7582839N, 14.9402400E", lat: 50.7582839, lon: 14.9402400, patron: "Volný k adopci", status: "available" },
+            { name: "Smržovský viadukt", loc: "Liberecký", type: "Kamenný klenbový viadukt", gps: "50°44′23.29″ N, 15°15′0.61″ E", lat: 50.7398028, lon: 15.2501694, patron: "Volný k adopci", status: "available" },
+            { name: "Chebský viadukt", loc: "Karlovarský", type: "Kamenný / cihlový klenbový", gps: "50°5′9.72″ N, 12°23′2.38″ E", lat: 50.0860333, lon: 12.3839944, patron: "Volný k adopci", status: "available" },
+            { name: "Praha Vyšehrad, most", loc: "Praha", type: "Ocelový nýtovaný příhradový", gps: "50°4′0.8″ N, 14°24′48.2″ E", lat: 50.0668889, lon: 14.4133889, patron: "Volný k adopci", status: "available" },
+            { name: "Bechyňský most („Bechyňská duha“)", loc: "Jihočeský", type: "Železobetonový klenbový", gps: "49°17′47.03″ N, 14°28′49.39″ E", lat: 49.2963972, lon: 14.4803861, patron: "Volný k adopci", status: "available" },
+            { name: "Pňovanský most / Hracholusky", loc: "Plzeňský", type: "Ocelový příhradový", gps: "49°47′10.32″ N, 13°4′26.4″ E", lat: 49.7862000, lon: 13.0740000, patron: "Volný k adopci", status: "available" },
+            { name: "Hrob - Mlýny - Velký hrobský viadukt", loc: "Ústecký", type: "Kamenný klenbový viadukt", gps: "50.6635092N, 13.7297522E", lat: 50.6635092, lon: 13.7297522, patron: "Volný k adopci", status: "available" },
+            { name: "Mikulov (Teplicko)", loc: "Ústecký", type: "Kamenný obloukový", gps: "50°41′46.94″ N, 13°42′40.57″ E", lat: 50.6963722, lon: 13.7112694, patron: "Volný k adopci", status: "available" },
+            { name: "Lipovsko-Loucký viadukt", loc: "Jihomoravský", type: "Železobetonový viadukt", gps: "49.539828N, 16.513364E", lat: 49.539828, lon: 16.513364, patron: "Volný k adopci", status: "available" },
+            { name: "Stránovský viadukt (U Krnska)", loc: "Středočeský", type: "Železobetonový klenbový", gps: "50°22′17.4″ N, 14°51′57.24″ E", lat: 50.3715000, lon: 14.8659000, patron: "Volný k adopci", status: "available" },
+            { name: "Most Míru / Dolní Loučky viadukt", loc: "Jihomoravský", type: "Železobetonový klenbový", gps: "49°21′20.88″ N, 16°21′6.84″ E", lat: 49.3558000, lon: 16.3519000, patron: "Volný k adopci", status: "available" },
+            { name: "Bernartice - dvoupatrový most", loc: "Královéhradecký", type: "Kamenný patrový klenbový", gps: "50.6478642N, 15.9604775E", lat: 50.6478642, lon: 15.9604775, patron: "Volný k adopci", status: "available" },
+            { name: "Červený most / Znojemský viadukt", loc: "Jihomoravský", type: "Ocelový / kamenný obloukový", gps: "48.8596581N, 16.0672981E", lat: 48.8596581, lon: 16.0672981, patron: "Volný k adopci", status: "available" },
+            { name: "Červená nad Vltavou - Červenský most", loc: "Jihočeský", type: "Ocelový nýtovaný příhradový", gps: "49°22′53.37″ N, 14°15′9.92″ E", lat: 49.3814917, lon: 14.2527556, patron: "Volný k adopci", status: "available" },
+            { name: "Hlubočepské viadukty (Pražský semmering)", loc: "Praha", type: "Kamenný klenbový viadukt", gps: "50.0415392N, 14.3855581E", lat: 50.0415392, lon: 14.3855581, patron: "Volný k adopci", status: "available" },
+            { name: "Pernink viadukt", loc: "Karlovarský", type: "Kamenný klenbový", gps: "50.3636211N, 12.7738844E", lat: 50.3636211, lon: 12.7738844, patron: "Volný k adopci", status: "available" },
+            { name: "Mezihoří viadukt", loc: "Jihomoravský", type: "Železobetonový klenbový", gps: "49°21′19.08″ N, 16°22′5.88″ E", lat: 49.3553000, lon: 16.3683000, patron: "Volný k adopci", status: "available" },
+            { name: "Sychrovský viadukt", loc: "Liberecký", type: "Kamenný patrový klenbový", gps: "50°37′52.06″ N, 15°4′44.22″ E", lat: 50.6311278, lon: 15.0789500, patron: "Volný k adopci", status: "available" },
+            { name: "Zahrádky - Karba - most", loc: "Liberecký", type: "Ocelový příhradový na kamenných pilířích", gps: "50.6400411N, 14.5151381E", lat: 50.6400411, lon: 14.5151381, patron: "Volný k adopci", status: "available" },
+            { name: "Branický most - Most inteligence", loc: "Praha", type: "Železobetonový klenbový", gps: "50.0268264N, 14.3975103E", lat: 50.0268264, lon: 14.3975103, patron: "Volný k adopci", status: "available" },
+            { name: "Holešovický most / pod Bulovkou", loc: "Praha", type: "Železobetonový klenbový", gps: "50°6′47.16″ N, 14°26′57.84″ E", lat: 50.1131000, lon: 14.4494000, patron: "Volný k adopci", status: "available" },
+            { name: "Měchenice most", loc: "Středočeský", type: "Ocelový příhradový", gps: "49.9177006N, 14.3772306E", lat: 49.9177006, lon: 14.3772306, patron: "Volný k adopci", status: "available" },
+            { name: "Hranický viadukt", loc: "Středočeský", type: "Kamenný klenbový viadukt", gps: "49.9859833N, 15.1872214E", lat: 49.9859833, lon: 15.1872214, patron: "Volný k adopci", status: "available" },
+            { name: "Ratajský most", loc: "Středočeský", type: "Ocelový příhradový", gps: "49.8456658N, 14.9474794E", lat: 49.8456658, lon: 14.9474794, patron: "Volný k adopci", status: "available" },
+            { name: "Podlešínský viadukt", loc: "Středočeský", type: "Kamenný klenbový viadukt", gps: "50.2202083N, 14.1527578E", lat: 50.2202083, lon: 14.1527578, patron: "Volný k adopci", status: "available" },
+            { name: "Kolínský most (starý)", loc: "Středočeský", type: "Ocelový nýtovaný obloukový", gps: "50.0291611N, 15.2113217E", lat: 50.0291611, lon: 15.2113217, patron: "Volný k adopci", status: "available" },
+            { name: "Kolínský most (nový)", loc: "Středočeský", type: "Ocelový obloukový", gps: "50.0291611N, 15.2113217E", lat: 50.0291611, lon: 15.2113217, patron: "Volný k adopci", status: "available" },
+            { name: "Strachovický most / most u Čisté / Čistecký most / most u Bílé skály", loc: "Středočeský", type: "Kamenný klenbový", gps: "50°1′5.59″ N,  13°31′59.23″ E", lat: 50.0182194, lon: 13.5331194, patron: "Volný k adopci", status: "available" },
+            { name: "Vilémov u Šluknova - most", loc: "Ústecký", type: "Ocelový nýtovaný příhradový", gps: "50.9880294N, 14.3232247E", lat: 50.9880294, lon: 14.3232247, patron: "Volný k adopci", status: "available" },
+            { name: "Chrást - viadukt", loc: "Plzeňský", type: "Ocelový příhradový obloukový", gps: "49°48′11.65″ N,  13°30′20.74″ E", lat: 49.8032361, lon: 13.5057611, patron: "Volný k adopci", status: "available" },
+            { name: "Ivančický MOST viadukt", loc: "Jihomoravský", type: "Ocelový příhradový viadukt", gps: "49°4′56.12″ N,  16°24′38.29″ E", lat: 49.0822556, lon: 16.4106361, patron: "Volný k adopci", status: "available" },
+            { name: "Jezernický viadukt", loc: "Olomoucký", type: "Cihlový a kamenný klenbový viadukt", gps: "49°32′14.03″ N,  17°37′52.3″ E", lat: 49.5372306, lon: 17.6311944, patron: "Volný k adopci", status: "available" },
+            { name: "Nebřezinský most / Rybnický most/viadukt", loc: "Plzeňský", type: "Kamenný klenbový viadukt", gps: "49.9139636N, 13.3957961E", lat: 49.9139636, lon: 13.3957961, patron: "Volný k adopci", status: "available" },
+            { name: "Chýnovský viadukt", loc: "Jihočeský", type: "Kamenný klenbový viadukt", gps: "49.4104422N, 14.8179417E", lat: 49.4104422, lon: 14.8179417, patron: "Volný k adopci", status: "available" },
+            { name: "Táborský most", loc: "Jihočeský", type: "Ocelový obloukový", gps: "49.4080222N, 14.6701739E", lat: 49.4080222, lon: 14.6701739, patron: "Volný k adopci", status: "available" },
+            { name: "Milevský viadukt", loc: "Jihočeský", type: "Kamenný klenbový", gps: "49.4451578N, 14.3851417E", lat: 49.4451578, lon: 14.3851417, patron: "Volný k adopci", status: "available" },
+            { name: "Machnínský viadukt", loc: "Liberecký", type: "Ocelový obloukový příhradový", gps: "50.7866372N, 14.9792286E", lat: 50.7866372, lon: 14.9792286, patron: "Volný k adopci", status: "available" },
+            { name: "Jizerský most („Břicháč“)", loc: "Liberecký", type: "Kamenný obloukový", gps: "50.7802511N, 15.3695769E", lat: 50.7802511, lon: 15.3695769, patron: "Volný k adopci", status: "available" },
+            { name: "Stará Paka, viadukt", loc: "Královéhradecký", type: "Železobetonový obloukový viadukt", gps: "50.5165144N, 15.4886192E", lat: 50.5165144, lon: 15.4886192, patron: "Volný k adopci", status: "available" },
+            { name: "Poříčí, soubor mostů", loc: "Královéhradecký", type: "Kamenné klenbové mosty", gps: "50.5780583N, 15.9637436E", lat: 50.5780583, lon: 15.9637436, patron: "Volný k adopci", status: "available" },
+            { name: "Říkonínský viadukt - Kutiny", loc: "Jihomoravský", type: "Železobetonový klenbový viadukt", gps: "49.3628344N, 16.2874444E", lat: 49.3628344, lon: 16.2874444, patron: "Volný k adopci", status: "available" },
+            { name: "Znojemský most", loc: "Jihomoravský", type: "Ocelový příhradový", gps: "48.8478961N, 16.0515992E", lat: 48.8478961, lon: 16.0515992, patron: "Volný k adopci", status: "available" },
+            { name: "Jihlavský viadukt", loc: "Vysočina", type: "Kamenný klenbový viadukt", gps: "49.4067800N, 15.5888550E", lat: 49.4067800, lon: 15.5888550, patron: "Volný k adopci", status: "available" },
+            { name: "Vídeňský viadukt (Brněnský)", loc: "Jihomoravský", type: "Cihlový klenbový viadukt", gps: "49°11′12.69″ N,  16°36′30.95″ E", lat: 49.1868583, lon: 16.6085972, patron: "Volný k adopci", status: "available" },
+            { name: "Borovinský most", loc: "Vysočina", type: "Kamenný / železobetonový obloukový", gps: "49.2119078N, 15.8711917E", lat: 49.2119078, lon: 15.8711917, patron: "Volný k adopci", status: "available" },
+            { name: "Úvalský viadukt - Devět kanálů", loc: "Praha", type: "Kamenný patrový klenbový viadukt", gps: "50.0714694N, 14.7285706E", lat: 50.0714694, lon: 14.7285706, patron: "Volný k adopci", status: "available" },
+            { name: "Most Oskar - Břeclav", loc: "Jihomoravský", type: "Ocelový příhradový", gps: "48.7370372N, 16.8773472E", lat: 48.7370372, lon: 16.8773472, patron: "Volný k adopci", status: "available" },
+            { name: "Děčínský most - Děčín Podmokly", loc: "Ústecký", type: "Ocelový nýtovaný obloukový", gps: "50.7763425N, 14.2055694E", lat: 50.7763425, lon: 14.2055694, patron: "Volný k adopci", status: "available" }
+        ];
+
+        function renderBridges(data) {
+            const tableBody = document.getElementById('bridgeTableBody');
+            tableBody.innerHTML = '';
+            data.forEach(b => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="font-weight: 500;">${b.name}</td>
+                    <td style="color: var(--text-muted);">${b.loc}</td>
+                    <td>${b.type}</td>
+                    <td>
+                        <a href="${generateMapLink(b.lat, b.lon, b.gps)}" target="_blank" class="hover:text-accent-gold underline text-xs font-mono" style="color: var(--accent-gold); display: inline-flex; align-items: center; gap: 4px;">
+                            ${b.gps} 🗺️
+                        </a>
+                    </td>
+                    <td>
+                        <a href="faq.html#b2b-rewards" class="status-badge ${b.status}" style="display: inline-block;">
+                            ${b.patron}
+                        </a>
+                    </td>
+                `;
+                tableBody.appendChild(tr);
+            });
+        }
+
+        function filterBridges() {
+            const searchVal = document.getElementById('dbSearch').value.toLowerCase();
+            const regionVal = document.getElementById('dbRegionFilter').value;
+            const filtered = bridgesData.filter(b => {
+                const matchesSearch = b.name.toLowerCase().includes(searchVal) || b.loc.toLowerCase().includes(searchVal);
+                const matchesRegion = regionVal === "" || b.loc.includes(regionVal);
+                return matchesSearch && matchesRegion;
+            });
+            renderBridges(filtered);
+        }
+
+        renderBridges(bridgesData);
+
+        // --- DYNAMICKÝ AKORDEON (BEZ OŘEZU TEXTU) ---
+        function toggleSample(index) {
+            const row = document.getElementById(`sample-${index}`);
+            const content = row.querySelector('.sample-content');
+            const isActive = row.classList.contains('active');
+            
+            // Nejprve zavřeme všechny ostatní akordeony
+            document.querySelectorAll('.sample-row').forEach(r => {
+                r.classList.remove('active');
+                r.querySelector('.sample-content').style.maxHeight = "0px";
+            });
+
+            // Pokud nebyl aktivní, otevřeme ho s dynamickým výpočtem výšky
+            if (!isActive) {
+                row.classList.add('active');
+                content.style.maxHeight = content.scrollHeight + "px";
+            }
+        }
+    </script>
+</body>
+</html>

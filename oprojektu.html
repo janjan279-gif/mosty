@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MOSTY — O projektu</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;700;900&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- HIGH-END EDITORIAL DESIGN SYSTEM --- */
+        :root { --bg-color: #f5f4f0; --text-main: #111111; --text-muted: #555555; --border-color: #d1d1cf; --accent-gold: #c5a059; --font-display: 'Montserrat', sans-serif; --font-serif: 'Playfair Display', serif; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background-color: var(--bg-color); color: var(--text-main); font-family: var(--font-display); line-height: 1.6; -webkit-font-smoothing: antialiased; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 0 40px; }
+        header { border-bottom: 1px solid var(--border-color); padding: 30px 0; }
+        header .container { display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 1.8rem; font-weight: 900; letter-spacing: 0.4em; text-transform: uppercase; text-decoration: none; color: var(--text-main); }
+        nav { display: flex; gap: 40px; align-items: center; }
+        nav a { text-decoration: none; color: var(--text-main); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.15em; font-weight: 500; transition: color 0.3s; }
+        nav a:hover { color: var(--accent-gold); }
+        .btn-outline { border: 1px solid var(--text-main); padding: 12px 24px; transition: all 0.3s; }
+        .btn-outline:hover { background-color: var(--text-main); color: var(--bg-color); }
+        
+        .page-header { padding: 100px 0 60px 0; border-bottom: 1px solid var(--text-main); margin-bottom: 80px; }
+        .page-header h1 { font-family: var(--font-serif); font-size: 4.5rem; line-height: 1.1; }
+        .story-section { display: grid; grid-template-columns: 1.5fr 1fr; gap: 100px; margin-bottom: 100px; }
+        .story-content { font-family: var(--font-serif); font-size: 1.25rem; line-height: 1.8; color: #333; }
+        .story-content p { margin-bottom: 30px; }
+        .story-content h2 { font-family: var(--font-display); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.2em; margin: 50px 0 20px 0; color: var(--text-main); }
+        
+        /* Zástupci obrázků zapuštěných v textu */
+        .inline-photo { width: 100%; aspect-ratio: 16 / 9; border: 1px solid var(--border-color); overflow: hidden; margin: 40px 0; background-color: #ddd; }
+        .inline-photo img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(10%) contrast(102%); display: block; }
+        
+        .sidebar-photo { width: 100%; aspect-ratio: 3 / 4; border: 1px solid var(--border-color); overflow: hidden; margin-top: 30px; background-color: #ddd; }
+        .sidebar-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+        .story-visual { position: sticky; top: 40px; height: max-content; }
+        
+        /* YouTube Video Kontejner v pravém sloupci */
+        .video-wrapper { position: relative; width: 100%; aspect-ratio: 16 / 9; background-color: #000; border: 1px solid var(--border-color); margin-bottom: 20px; }
+        .video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+
+        .specs-list { margin-top: 40px; border-top: 1px solid var(--border-color); padding-top: 40px; }
+        .spec-item { display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding: 15px 0; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.1em; }
+        footer { padding: 60px 0; border-top: 1px solid var(--border-color); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em; }
+        footer .container { display: flex; justify-content: space-between; }
+        @media (max-width: 900px) { .story-section { grid-template-columns: 1fr; } }
+    </style>
+
+    <!-- Skript pro automatické daisy-chain vyhledávání správných formátů -->
+    <script>
+        function tryImages(img, filenames, fallback) {
+            if (!img.dataset.tryIndex) img.dataset.tryIndex = "0";
+            let idx = parseInt(img.dataset.tryIndex);
+            if (idx < filenames.length) {
+                img.dataset.tryIndex = (idx + 1).toString();
+                img.src = filenames[idx];
+            } else {
+                img.src = fallback;
+                img.onerror = null;
+            }
+        }
+    </script>
+</head>
+<body>
+
+    <header>
+        <div class="container">
+            <a href="index.html" class="logo">Mosty</a>
+            <nav>
+                <a href="oprojektu.html" style="color: var(--accent-gold);">O Projektu</a>
+                <a href="index.html#aktuality">Deník</a>
+                <a href="mosty.html">Kniha & Ukázky</a>
+                <a href="autori.html">Autoři</a>
+                <a href="faq.html">Kontakt & FAQ</a>
+                <a href="index.html#podpora" class="btn-outline">Podpořit nezávisle</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="page-header">
+            <span style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.2em; color: var(--text-muted); display: block; margin-bottom: 20px;">Kniha jako artefakt</span>
+            <h1>Příběh zrady <br>a záchrany.</h1>
+        </div>
+
+        <div class="story-section">
+            <!-- LEVÝ SLOUPEC (Text + Vložené fotky) -->
+            <div class="story-content">
+                <p style="font-size: 1.5rem; line-height: 1.4; margin-bottom: 40px; font-weight: 500;">
+                    Měl to být velkolepý knižní projekt oslavující železniční architekturu. Místo toho mě velký partner nechal investovat stovky hodin práce, statisíce z vlastní kapsy a pak se hodil do módu „mrtvého brouka“. Kniha už je ale v pokročilé fázi rozpracování a je jí až moc velká škoda na to, abych ji nechal umřít. Pomozte mi ji vydat navzdory všemu!
+                </p>
+
+                <p>Výjimečný knižní projekt MOSTY představí originálním způsobem 50 kurátorsky vybraných železničních mostů v České republice. Viadukty a mosty jsou mnohdy konstrukčními skvosty, ztělesněním inženýrské odvahy i tiché elegance železnice v dialogu s krajinou. Každý je svým způsobem jedinečný – konstrukcí, zasazením do krajiny, technickou výjimečností nebo historickým kontextem. Každá tato stavba má svůj příběh a MOSTY budou knihou, která těmto tichým svědkům času a němým sluhům vlaků vzdá poctu. Texty jsou psány nejen s respektem k technické a architektonické stránce věci, ale i s poetickým citem pro krajinu, estetiku staveb a i pro příběhy za nimi skryté.</p>
+                
+                <!-- 1. VLOŽENÁ FOTOGRAFIE (Náhled vnitřní sazby - open book mockup) -->
+                <div class="inline-photo">
+                    <img src="Snímek obrazovky 2026-05-20 101359.png" 
+                         onerror="tryImages(this, ['Snímek obrazovky 2026-05-20 101359.jpg', 'kniha1.png', 'kniha1.jpg', 'kniha1.jpeg', 'Gemini_Generated_Image_wkinh0wkinh0wkin.png'], 'https://lh3.googleusercontent.com/d/10T2cgXlUs_yuQJk5SlTIgA-t4RGPUpws')" 
+                         alt="Ukázka vnitřní sazby knihy MOSTY">
+                </div>
+
+                <h2>Na začátku byl nápad na knihu... a možná až moc skvělá nabídka</h2>
+                <p>Ahoj všichni, jmenuji se Jan Charvát. Možná znáte mou předchozí tvorbu – knihy Metrovize nebo Nádech výdech o vzduchotechnice pražského metra, která se dnes na trhu mezi sběrateli prodává i za 7 000 Kč (a na kterou přispěla před lety i kampaň tady na HitHitu). I když se věnuji již převážně jiným druhům tvorby, k dopravní tematice a architektuře mám samozřejmě stále blízký vztah. Příběhům vetkaným do oceli a betonu těžko odolávám... Proto když mě oslovil šéf marketingu technologické firmy Ayudate s nabídkou od jejich ředitele a majitele vytvořit exkluzivní knihu s tématikou železnic, byl to splněný sen. Konečně žádné starosti o financování, které provází každý podobný projekt!</p>
+                
+                <p>Po společné debatě jsme se shodli na tématu nejkrásnějších českých železničních mostů, rámcovém rozpočtu a já jsem prakticky okamžitě začal s rešeršemi, sběrem podkladů a sháněním odborné literatury. Souběžně jsme se s grafikem Honzou Matouškem pustili do tvorby dalšího unikátního vizuálního konceptu, který reflektuje grafickou poezii vlakových jízdních řádů... Já si mezitím najal jako brigádníky studenty archivnictví a sám jsem se vydal do terénu. Ve spolupráci s architekty jsme nakonec udělali kurátorskou selekci 50 mostů.</p>
+                
+                <!-- 2. VLOŽENÁ FOTOGRAFIE (Bridge photo z disku) -->
+                <div class="inline-photo">
+                    <img src="mosty vis.png" 
+                         onerror="tryImages(this, ['mosty vis.jpg', 'mosty vis.jpeg', 'mosty_vis.png'], 'https://lh3.googleusercontent.com/d/17-PFkTPE6e_nwig6in4T2-XkY9DyQdHb')" 
+                         alt="Železniční most v krajině - ukázka z chystané knihy">
+                </div>
+
+                <h2>Od splněného snu k noční můře a zloději knih</h2>
+                <p>Nafoceno jsme měli prvních deset mostů, načetl jsem desítky knih a tisíce stran, dopsal tucet kapitol, skoro ke každému mostu jsem měl většinu podkladů. To vše ve volném čase vedle své práce. Projekt dýchal a šel zdárně kupředu.</p>
+
+                <p>První menší fakturu za přímé náklady zaplatila firma se zpožděním, ale přece. Mezitím se ve vedení společnosti (u majitele Jana Šamala) začaly dít změny a dozvěděl jsem se, že vyjednává o prodeji firmy. Moje další faktura na přímé náklady ve výši téměř 100 tisíc korun (bez DPH) už zůstala zcela bez odezvy. Několik upomínek, proseb... Výsledek? Ignorace. Vedení Ayudate začalo dělat mrtvého brouka... Záležitost museli převzít moji právníci. Jako bizarní korunu celého podrazu si ode mě nyní již bývalý šéf a majitel firmy Šamal půjčil můj osobní výtisk již nesehnatelné knihy Nádech výdech a už mi ji ani po urgencích nevrátil. Krystalická podoba korporátní arogance.</p>
+
+                <h2>Mosty musí vyjít - nepoctivcům navzdory</h2>
+                <p>Odmítám se vzdát a nechat tenhle projekt padnout kvůli arogantnímu chování jednoho partnera. MOSTY jsou solidně rozpracované, mají jasnou vizi a budou knižním skvostem. Původně jsme vydání plánovali před letošními Vánocemi, ten termín je ale kvůli výše popsanému nereálný. Proto vydání plánujeme na podzim 2027.</p>
+
+                <p>Celkové náklady na tisk, speciální papír, špičkovou grafiku a distribuci takto výpravné knihy sice přesahují milion korun, ale tato kampaň mi pomůže pokrýt alespoň ty nejnutnější náklady na dokončení práce, které mi v Ayudate nezaplatili, abych mohl platit focení dalších zbývajících mostů. Nenechme vyhrát ty, kteří si myslí, že s nezávislými autory mohou beztrestně zametat. Předobjednejte si knihu, vyberte si některou z odměn a pomozte mi ukázat, že síla komunity je větší než podraz jedné firmy. Děkuji vám za podporu!</p>
+                
+                <a href="index.html#podpora" style="display: inline-block; margin-top: 30px; font-family: var(--font-display); text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-main); text-decoration: none; border-bottom: 1px solid var(--text-main); padding-bottom: 5px;">Podpořte vydání napřímo →</a>
+            </div>
+
+            <!-- PRAVÝ SLOUPEC (Fixní, Video + Detaily + Vertikální fotka) -->
+            <div class="story-visual">
+                
+                <!-- ZDE JE YOUTUBE VIDEO -->
+                <div class="video-wrapper">
+                    <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0" title="MOSTY Promo Video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                </div>
+                
+                <div class="specs-list">
+                    <div class="spec-item"><span>Rozsah</span> <span>50 mostů / Cca 300 stran</span></div>
+                    <div class="spec-item"><span>Grafika</span> <span>Rytmus jízdních řádů</span></div>
+                    <div class="spec-item"><span>Vydání</span> <span>Podzim 2027</span></div>
+                </div>
+
+                <!-- 3. VERTIKÁLNÍ FOTOGRAFIE V BOČNÍM SLOUPCI (Zavřená černá kniha MOSTY) -->
+                <div class="sidebar-photo">
+                    <img src="Snímek obrazovky 2026-05-20 101419.png" 
+                         onerror="tryImages(this, ['Snímek obrazovky 2026-05-20 101419.jpg', 'titulka na stole.png', 'titulka na stole.jpg', 'Nepojmenované mosty 3D.png', 'Nepojmenované mosty 3D.jpg', 'Gemini_Generated_Image_jn5gnrjn5gnrjn5g.png'], 'https://lh3.googleusercontent.com/d/1PRz3GJQjUWx9CakvXynD068pY1KZ9bkP')" 
+                         alt="Chystaná kniha MOSTY na stole vedle starých nákresů">
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- NEWSLETTER SEKCE -->
+    <section class="newsletter-section" style="padding: 80px 0; border-top: 1px solid var(--border-color); background-color: white;">
+        <div class="container" style="display: flex; justify-content: space-between; align-items: center; gap: 40px; flex-wrap: wrap;">
+            <div style="max-width: 500px;">
+                <h2 style="font-family: var(--font-serif); font-size: 2rem; margin-bottom: 10px;">Zůstaňte v obraze</h2>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">Zanechte nám e-mail a my se vám ozveme, jakmile kniha zamíří do tisku nebo spustíme kampaň.</p>
+            </div>
+            <form action="https://docs.google.com/forms/d/e/1FAIpQLSeEf6yzc3dPp5tYE8K6102OXJPFLbYhWq0QrtikHStq1DWBgQ/formResponse" method="POST" target="_blank" style="flex-grow: 1; max-width: 500px; display: flex; flex-direction: column; gap: 15px;">
+                <div style="display: flex; border-bottom: 1px solid var(--text-main);">
+                    <input type="email" name="entry.1692910955" placeholder="Váš e-mail" required style="width: 100%; border: none; padding: 15px 0; font-family: var(--font-display); font-size: 1rem; outline: none; background: transparent; color: var(--text-main);">
+                    <button type="submit" style="background: none; border: none; font-family: var(--font-display); font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer; padding: 0 15px; color: var(--text-main);">Odebírat</button>
+                </div>
+                <label style="font-size: 0.7rem; color: var(--text-muted); display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                    <input type="checkbox" required style="accent-color: var(--text-main);"> Souhlasím se zpracováním osobních údajů pro zasílání novinek (GDPR).
+                </label>
+            </form>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div>&copy; 2026 Projekt MOSTY</div>
+            <div style="color: var(--text-muted);">Design / Kniha jako artefakt</div>
+        </div>
+    </footer>
+
+</body>
+</html>
