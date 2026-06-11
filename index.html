@@ -34,7 +34,7 @@
         nav { display: flex; gap: 40px; align-items: center; }
         nav a { text-decoration: none; color: var(--text-main); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.15em; font-weight: 500; transition: color 0.3s; }
         nav a:hover { color: var(--accent-gold); }
-        .btn-outline { border: 1px solid var(--text-main); padding: 12px 24px; transition: all 0.3s; }
+        .btn-outline { border: 1px solid var(--text-main); padding: 12px 24px; transition: all 0.3s; text-decoration: none; display: inline-block; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.15em; font-weight: 500; color: var(--text-main); }
         .btn-outline:hover { background-color: var(--text-main); color: var(--bg-color); }
 
         /* Hero Sekce */
@@ -91,7 +91,7 @@
         .news-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out, margin-top 0.3s; padding-left: 200px; max-width: 900px; color: var(--text-muted); font-size: 1.05rem; line-height: 1.8; }
         
         /* Třídy pro rozbalený stav */
-        .news-row.active .news-icon { transform: rotate(45deg); color: var(--text-main); }
+        .news-row.active .news-icon { transform: rotate(45deg); }
         .news-row.active .news-content { max-height: 500px; margin-top: 25px; }
 
         /* Přímá podpora */
@@ -109,7 +109,7 @@
         .btn-submit:hover { background-color: var(--accent-gold); color: white; }
         .qr-zone { display: none; text-align: center; animation: fadeIn 0.5s ease forwards; }
         .qr-placeholder { width: 200px; height: 200px; background: white; margin: 0 auto 30px auto; display: flex; align-items: center; justify-content: center; color: black; font-weight: bold; }
-        .payment-details { font-family: monospace; font-size: 1.1rem; color: var(--accent-gold); margin-bottom: 20px; }
+        .payment-details { font-family: monospace; font-size: 1.1rem; color: var(--accent-gold); margin-bottom: 20px; line-height: 1.8; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
         /* Responzivita */
@@ -175,9 +175,9 @@
             <!-- VELKÁ VIZUÁLNÍ PLOCHA (AUTOMATICKY VYHLEDÁ LOKÁLNÍ SOUBORY) -->
             <div class="container">
                 <div class="image-showcase">
-                    <img src="mosty vis.jpg" 
-                         onerror="tryImages(this, ['mosty vis.png', 'mosty-vis.png', 'mosty-vis.jpg', 'titulka na stole.jpg', 'titulka na stole.png', 'titulka-na-stole.png', 'titulka-na-stole.jpg', 'Nepojmenované mosty 3D.png', 'nepojmenovane-mosty-3d.png', 'knha1.jpg', 'knha1.png'], 'https://lh3.googleusercontent.com/d/10T2cgXlUs_yuQJk5SlTIgA-t4RGPUpws')" 
-                         alt="Vizualizace knihy MOSTY">
+                    <img src="titulka na stole.jpg" 
+                         onerror="tryImages(this, ['titulka na stole.png', 'titulka-na-stole.png', 'titulka-na-stole.jpg', 'mosty vis.jpg', 'mosty vis.png', 'mosty-vis.png', 'mosty-vis.jpg', 'Nepojmenované mosty 3D.png', 'nepojmenovane-mosty-3d.png', 'knha1.jpg', 'knha1.png'], 'https://lh3.googleusercontent.com/d/10T2cgXlUs_yuQJk5SlTIgA-t4RGPUpws')" 
+                         alt="Titulka knihy MOSTY na stole">
                 </div>
             </div>
         </section>
@@ -200,7 +200,7 @@
             <div class="container support-grid">
                 <div class="support-info">
                     <h2>Podpořte nás napřímo</h2>
-                    <p>Nenecháváme si diktovat podmínky od velkých platforem. Pokud nás podpoříte napřímo, 100 % částky půjde do výroby knihy a nezávislého tisku.</p>
+                    <p>Nenecháváme si diktovat podmínky od velkých platforem. Pokud nás podpoříte napřímo, 100 % částky půjde do výroby knihy a nezávislého tisku. Kniha podepsaná autory. </p>
                     <p style="font-family: var(--font-serif); font-size: 1.5rem; margin-top: 40px;">Základní předobjednávka: 1 500 Kč</p>
                     <div style="margin-top: 60px; padding-top: 40px; border-top: 1px solid #333;">
                         <h3 style="font-size: 1rem; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 10px;">Jste firma nebo mecenáš?</h3>
@@ -227,8 +227,10 @@
                     <div id="qrZone" class="qr-zone">
                         <h3 style="margin-bottom: 20px; font-family: var(--font-serif); font-size: 1.8rem; font-weight: 400; color: white;">Děkujeme, <span id="displayName"></span>!</h3>
                         <p style="color: #aaa; margin-bottom: 30px; font-size: 0.9rem;">Vaše údaje se nám právě uložily. Pro dokončení předobjednávky prosím naskenujte QR kód ve svém bankovnictví.</p>
-                        <div class="qr-placeholder">[ Zde bude tvůj QR kód ]</div>
-                        <div class="payment-details">Částka: 1 500 Kč<br>Účet: ZDE_DOPLN_TVUJ_UCET/0123<br>Zpráva: Kniha MOSTY - <span id="displayEmail" style="font-size: 0.8rem;"></span></div>
+                        <div class="qr-placeholder" style="background: white; padding: 20px; border-radius: 8px; width: max-content; margin: 0 auto 30px auto; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 25px rgba(0,0,0,0.3);">
+                            <span style="color: black; font-size: 0.85rem; font-weight: 500;">Generování QR kódu...</span>
+                        </div>
+                        <div class="payment-details">Částka: 1 500 Kč<br>Účet: 182003690/0300 (ČSOB)<br>Zpráva pro příjemce: Kniha MOSTY - <span id="displayEmail" style="font-size: 0.9rem; color: #fff; font-weight: 700;"></span></div>
                         <p style="font-size: 0.8rem; color: #888; margin-top: 30px;">Po přijetí platby vám zašleme potvrzení na e-mail.</p>
                     </div>
                 </div>
@@ -311,9 +313,24 @@
         // Ukázání QR platební zóny po odeslání objednávky
         function showQRZone() {
             const name = document.getElementById('name').value;
-            const email = document.getElementById('email').value;
+            const email = document.getElementById('email').value.trim();
             document.getElementById('displayName').innerText = name;
             document.getElementById('displayEmail').innerText = email;
+
+            // Dynamické generování českého platebního QR kódu (SPAYD standard)
+            const qrContainer = document.querySelector('.qr-placeholder');
+            const message = encodeURIComponent(`Kniha MOSTY - ${email}`);
+            
+            // Generujeme odkaz na spolehlivé veřejné API pro CZ QR platby (na reálný účet ČSOB 182003690/0300)
+            const qrUrl = `https://api.paylibo.com/paylibo/generator/czech/image?accountNumber=182003690&bankCode=0300&amount=1500&currency=CZK&message=${message}`;
+            
+            qrContainer.innerHTML = `
+                <img src="${qrUrl}" 
+                     alt="QR Platba MOSTY" 
+                     style="width: 200px; height: 200px; display: block;"
+                     onerror="this.onerror=null; this.parentElement.innerHTML='<span style=\'color: black; font-size: 0.8rem; text-align: center; padding: 10px;\'>QR kód se nepodařilo načíst.<br>Použijte prosím bankovní převod.</span>';">
+            `;
+
             document.getElementById('preorderForm').style.display = 'none';
             document.getElementById('qrZone').style.display = 'block';
         }
