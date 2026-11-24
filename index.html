@@ -117,7 +117,7 @@
             .hero-grid, .support-grid { grid-template-columns: 1fr; gap: 40px; }
             .hero-content h1 { font-size: 3rem; }
             .news-trigger { grid-template-columns: 1fr 40px; gap: 10px; }
-            .news-date { display: block; margin-bottom: 5px; }
+            .news-date { display: block; margin-bottom: 5px; grid-column: 1 / -1; }
             .news-title { font-size: 1.5rem; }
             .news-content { padding-left: 0; }
             nav { display: none; }
@@ -267,26 +267,32 @@
     <!-- JAVASCRIPT PRO INTERAKTIVITU -->
     <script>
         // DATA PRO AKTUALITY (Kdykoliv sem můžeš přidat další blok a sám se vykreslí a napojí)
+        // Nejnovější novinku přidávej vždy NAHORU (na začátek seznamu).
         const newsData = [
-                 {
-                date: "ŘÍJEN 2025",
-                title: "Nafoceny první mosty",
-                content: "Fotograf Pavel Hroch nafotil první várku mostů. Mimo jinými most Červená nad Vltavou, Bechyňský most, Most inteligence, Holešovický most, Sepekovský viadukt či Vyšehrad ."
-            },
             {
-                date: "LISTOPAD 2025",
-                title: "Příprava sazby a jízdní řády",
-                content: "S Honzozu Matouškem jsme dokončil první náhledy grafické podoby. Design reflektuje a inspiruje se z rytmu železničních jízdních řádů."
-            },
-            {
-                date: "LEDEN 2025",
-                title: "Dopsány další kapitoly",
-                content: "Dopsal jsem další kapitoly - Sepekovský viadukt, Viadukt Božetice, Hranické viadukty, Chebský viadukt, Stránovský viadukt.Most Míru / Dolní Loučky, Branický most - Most inteligence a Chýnovský viadukt."
+                date: "LISTOPAD 2026",
+                title: "Máme promo video",
+                content: "Natočili jsme krátké video o knize MOSTY. Podívejte se nahoře na této stránce, o čem kniha bude a proč ji i přes korporátní podraz dotáhneme až do tisku. Budeme rádi, když ho pošlete dál."
             },
             {
                 date: "DUBEN 2026",
                 title: "Chýnovský viadukt k náhledu",
                 content: "Celou kapitolu o Chýnovském viaduktu si můžete přečíst přímo tady na webu."
+            },
+            {
+                date: "LEDEN 2026",
+                title: "Dopsány další kapitoly",
+                content: "Dopsal jsem další kapitoly: Sepekovský viadukt, Viadukt Božetice, Hranické viadukty, Chebský viadukt, Stránovský viadukt, Most Míru / Dolní Loučky, Branický most – Most inteligence a Chýnovský viadukt."
+            },
+            {
+                date: "LISTOPAD 2025",
+                title: "Příprava sazby a jízdní řády",
+                content: "S Honzou Matouškem jsme dokončili první náhledy grafické podoby. Design reflektuje a inspiruje se z rytmu železničních jízdních řádů."
+            },
+            {
+                date: "ŘÍJEN 2025",
+                title: "Nafoceny první mosty",
+                content: "Fotograf Pavel Hroch nafotil první várku mostů, mimo jiné most Červená nad Vltavou, Bechyňský most, Most inteligence, Holešovický most, Sepekovský viadukt či Vyšehrad."
             }
         ];
 
